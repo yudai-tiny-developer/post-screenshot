@@ -1,21 +1,18 @@
-let base64png;
+let base64image;
 
 chrome.action.onClicked.addListener(tab => {
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        files: ['inject.js']
-    });
+    chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['inject.js'] });
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.msg) {
         case 'ScreenShot':
-            base64png = message.base64png;
+            base64image = message.base64image;
             chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
-            break;
+            return;
         case 'GetScreenShot':
-            sendResponse(base64png);
-            break;
+            sendResponse(base64image);
+            base64image = undefined;
+            return true;
     }
-    return true;
 });
