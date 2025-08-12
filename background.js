@@ -1,7 +1,15 @@
 let base64image;
 
-chrome.action.onClicked.addListener(tab => {
+function screenshot(tab) {
     chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['inject.js'] });
+}
+
+chrome.action.onClicked.addListener(tab => {
+    screenshot(tab);
+});
+
+chrome.commands.onCommand.addListener((command, tab) => {
+    screenshot(tab);
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
