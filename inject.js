@@ -31,8 +31,12 @@ var _post_screenshot_canvas;
             _post_screenshot_canvas.width = video.videoWidth;
             _post_screenshot_canvas.height = video.videoHeight;
 
+            if (_post_screenshot_canvas.height > _post_screenshot_canvas.width) {
+                _post_screenshot_canvas.width = (_post_screenshot_canvas.height * 3) / 4;
+            }
+
             const context = _post_screenshot_canvas.getContext('2d');
-            context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+            context.drawImage(video, Math.max((_post_screenshot_canvas.width - video.videoWidth) / 2.0, 0), 0, video.videoWidth, video.videoHeight);
 
             const hashtags = [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',');
 
