@@ -36,7 +36,9 @@ var _post_screenshot_canvas;
 
             const hashtags = [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',');
 
-            chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image: _post_screenshot_canvas.toDataURL('image/jpeg', 0.85).replace(/^data:image\/\w+;base64,/, ''), hashtags });
+            chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image: _post_screenshot_canvas.toDataURL('image/jpeg', 0.85).replace(/^data:[^,]*,/, ''), hashtags });
+        } else {
+            chrome.runtime.sendMessage({ msg: 'VideoNotFound' });
         }
     } catch {
         // service_worker not ready
