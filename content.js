@@ -30,6 +30,8 @@ try {
           dataTransfer: dataTransfer,
         }));
       }, 500);
+    } else {
+      chrome.runtime.sendMessage({ msg: 'InvalidVideo' });
     }
   });
 } catch {
