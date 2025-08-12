@@ -1,50 +1,23 @@
 var _post_screenshot_canvas;
 
 (() => {
-    function getVideo() {
-        const video = document.body.querySelector('video');
-        if (video) {
-            return video;
+    const video = document.body.querySelector('video');
+    if (video) {
+        _post_screenshot_canvas = _post_screenshot_canvas ?? document.createElement('canvas');
+        _post_screenshot_canvas.width = video.videoWidth;
+        _post_screenshot_canvas.height = video.videoHeight;
+
+        if (_post_screenshot_canvas.height > _post_screenshot_canvas.width) {
+            _post_screenshot_canvas.width = (_post_screenshot_canvas.height * 3.0) / 4.0;
         }
 
-        for (const iframe of document.body.querySelectorAll('iframe')) {
-            try {
-                const doc = iframe.contentDocument || iframe.contentWindow.document;
-                if (doc) {
-                    const found = getVideo(doc);
-                    if (found) {
-                        return found;
-                    }
-                }
-            } catch (e) {
-                // CORS Error
-            }
-        }
+        const context = _post_screenshot_canvas.getContext('2d');
+        context.drawImage(video, Math.max((_post_screenshot_canvas.width - video.videoWidth) / 2.0, 0), 0, video.videoWidth, video.videoHeight);
 
-        return null;
-    }
+        const hashtags = [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',');
 
-    try {
-        const video = getVideo();
-        if (video) {
-            _post_screenshot_canvas = _post_screenshot_canvas ?? document.createElement('canvas');
-            _post_screenshot_canvas.width = video.videoWidth;
-            _post_screenshot_canvas.height = video.videoHeight;
-
-            if (_post_screenshot_canvas.height > _post_screenshot_canvas.width) {
-                _post_screenshot_canvas.width = (_post_screenshot_canvas.height * 3) / 4;
-            }
-
-            const context = _post_screenshot_canvas.getContext('2d');
-            context.drawImage(video, Math.max((_post_screenshot_canvas.width - video.videoWidth) / 2.0, 0), 0, video.videoWidth, video.videoHeight);
-
-            const hashtags = [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',');
-
-            chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image: _post_screenshot_canvas.toDataURL('image/jpeg', 0.85).replace(/^data:[^,]*,/, ''), hashtags });
-        } else {
-            chrome.runtime.sendMessage({ msg: 'VideoNotFound' });
-        }
-    } catch {
-        // service_worker not ready
+        chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image: _post_screenshot_canvas.toDataURL('image/jpeg', 0.85).replace(/^data:[^,]*,/, ''), hashtags });
+    } else {
+        chrome.runtime.sendMessage({ msg: 'VideoNotFound' });
     }
 })();
