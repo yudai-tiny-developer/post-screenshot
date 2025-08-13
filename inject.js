@@ -19,7 +19,7 @@ var _post_screenshot_canvas;
                 const hashtags = common.value(data.hashtags, common.default_hashtags) ? [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',') : '';
                 const encoderOptions = common.value(data.hq, common.default_hq) ? 1.0 : 0.85;
 
-                chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image: _post_screenshot_canvas.toDataURL('image/jpeg', encoderOptions).replace(/^data:[^,]*,/, ''), hashtags });
+                chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image: _post_screenshot_canvas.toDataURL('image/jpeg', encoderOptions).replace(/^data:[^,]*,/, ''), title: document.title, hashtags });
             });
         });
     } else {

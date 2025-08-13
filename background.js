@@ -1,6 +1,9 @@
 import * as common from './common.js';
 
 let base64image;
+let title;
+let tab_for_post;
+let window_for_post;
 
 function screenshot(tab) {
     chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['inject.js'] });
@@ -8,6 +11,27 @@ function screenshot(tab) {
 
 function error_popup(popup) {
     chrome.action.setPopup({ popup: popup }).then(() => { chrome.action.openPopup().then(() => { chrome.action.setPopup({ popup: '' }); }); });
+}
+
+function sanitize(title) {
+    const sanitized = title.replace(/[\\/:*?"<>|\x00-\x1F]/g, '_').replace(/[ .]+$/, '');
+    if (sanitized) {
+        return sanitized;
+    } else {
+        return '_';
+    }
+}
+
+function now() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mi = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+
+    return `${yyyy}${mm}${dd}${hh}${mi}${ss}`;
 }
 
 chrome.action.onClicked.addListener(tab => {
@@ -23,11 +47,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case 'ScreenShot':
             if (message.base64image) {
                 base64image = message.base64image;
-                chrome.storage.local.get(common.storage, data => {
+                title = `${sanitize(message.title)}_${now()}`;
+                chrome.storage.local.get(common.storage, async data => {
                     if (common.value(data.popup, common.default_popup)) {
-                        chrome.windows.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, type: 'popup' });
+                        if (window_for_post) {
+                            chrome.tabs.query({ windowId: window_for_post.id }, async tabs => {
+                                if (tabs && tabs.length > 0 && tabs[0].url.startsWith('https://x.com/')) {
+                                    chrome.tabs.update(tabs[0].id, { url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, active: true });
+                                } else {
+                                    window_for_post = await chrome.windows.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, type: 'popup' });
+                                }
+                            });
+                        } else {
+                            window_for_post = await chrome.windows.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, type: 'popup' });
+                        }
                     } else {
-                        chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
+                        if (tab_for_post) {
+                            chrome.tabs.get(tab_for_post.id, async tab => {
+                                if (tab && tab.url.startsWith('https://x.com/')) {
+                                    chrome.tabs.update(tab.id, { url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, active: true });
+                                } else {
+                                    tab_for_post = await chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
+                                }
+                            });
+                        } else {
+                            tab_for_post = await chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
+                        }
                     }
                 });
             } else {
@@ -35,8 +80,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
             return;
         case 'GetScreenShot':
-            sendResponse(base64image);
+            sendResponse({ base64image, title });
             base64image = undefined;
+            title = undefined;
             return true;
         case 'VideoNotFound':
             error_popup('VideoNotFound.html');

@@ -36,6 +36,11 @@ function main(common, settings, progress, data) {
         row.appendChild(settings.createLabel(cell_class, 'Post a high-quality screenshot'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'hq', data.hq, common.default_hq, common.value));
         container.appendChild(row);
+    } {
+        const row = settings.createRow(row_class);
+        row.appendChild(settings.createLabel(cell_class, 'Download a screenshot'));
+        row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'download', data.download, common.default_download, common.value));
+        container.appendChild(row);
     }
 
     settings.registerResetButton(reset_button, progress_div, progress_class, done_class, toggle_class, input_class, progress);
