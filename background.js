@@ -2,6 +2,7 @@ import * as common from './common.js';
 
 let base64image;
 let title;
+let tab_or_window_for_post;
 
 function screenshot(tab) {
     chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['inject.js'] });
@@ -12,13 +13,12 @@ function error_popup(popup) {
 }
 
 function sanitize(title) {
-    const invalidChars = /[\\/:*?"<>|\x00-\x1F]/g;
-    let sanitized = title.replace(invalidChars, '_');
-    sanitized = sanitized.replace(/[ .]+$/, '');
-    if (!sanitized) {
-        sanitized = '_'
-    };
-    return sanitized;
+    const sanitized = title.replace(/[\\/:*?"<>|\x00-\x1F]/g, '_').replace(/[ .]+$/, '');
+    if (sanitized) {
+        return sanitized;
+    } else {
+        return '_';
+    }
 }
 
 function now() {
@@ -47,11 +47,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if (message.base64image) {
                 base64image = message.base64image;
                 title = `${sanitize(message.title)}_${now()}`;
-                chrome.storage.local.get(common.storage, data => {
+                chrome.storage.local.get(common.storage, async data => {
                     if (common.value(data.popup, common.default_popup)) {
                         chrome.windows.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, type: 'popup' });
                     } else {
-                        chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
+                        if (tab_or_window_for_post) {
+                            chrome.tabs.get(tab_or_window_for_post.id, async tab => {
+                                if (tab) {
+                                    chrome.tabs.update(tab.id, { url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, active: true });
+                                } else {
+                                    tab_or_window_for_post = await chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
+                                }
+                            });
+                        } else {
+                            tab_or_window_for_post = await chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
+                        }
                     }
                 });
             } else {
