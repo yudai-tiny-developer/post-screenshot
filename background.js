@@ -1,3 +1,5 @@
+import * as common from './common.js';
+
 let base64image;
 
 function screenshot(tab) {
@@ -21,7 +23,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case 'ScreenShot':
             if (message.base64image) {
                 base64image = message.base64image;
-                chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
+                chrome.storage.local.get(common.storage, data => {
+                    if (common.value(data.popup, common.default_popup)) {
+                        chrome.windows.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, type: 'popup' });
+                    } else {
+                        chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
+                    }
+                });
             } else {
                 error_popup('InvalidVideo.html');
             }
