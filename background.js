@@ -2,7 +2,8 @@ import * as common from './common.js';
 
 let base64image;
 let title;
-let tab_or_window_for_post;
+let tab_for_post;
+let window_for_post;
 
 function screenshot(tab) {
     chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['inject.js'] });
@@ -49,18 +50,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 title = `${sanitize(message.title)}_${now()}`;
                 chrome.storage.local.get(common.storage, async data => {
                     if (common.value(data.popup, common.default_popup)) {
-                        chrome.windows.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, type: 'popup' });
-                    } else {
-                        if (tab_or_window_for_post) {
-                            chrome.tabs.get(tab_or_window_for_post.id, async tab => {
-                                if (tab) {
-                                    chrome.tabs.update(tab.id, { url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, active: true });
+                        if (window_for_post) {
+                            chrome.tabs.query({ windowId: window_for_post.id }, async tabs => {
+                                if (tabs && tabs.length > 0) {
+                                    chrome.tabs.update(tabs[0].id, { url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, active: true });
                                 } else {
-                                    tab_or_window_for_post = await chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
+                                    window_for_post = await chrome.windows.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, type: 'popup' });
                                 }
                             });
                         } else {
-                            tab_or_window_for_post = await chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
+                            window_for_post = await chrome.windows.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, type: 'popup' });
+                        }
+                    } else {
+                        if (tab_for_post) {
+                            chrome.tabs.get(tab_for_post.id, async tab => {
+                                if (tab) {
+                                    chrome.tabs.update(tab.id, { url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, active: true });
+                                } else {
+                                    tab_for_post = await chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
+                                }
+                            });
+                        } else {
+                            tab_for_post = await chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
                         }
                     }
                 });
