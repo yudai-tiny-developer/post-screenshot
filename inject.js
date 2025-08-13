@@ -16,12 +16,9 @@ var _post_screenshot_canvas;
                 const context = _post_screenshot_canvas.getContext('2d');
                 context.drawImage(video, Math.max((_post_screenshot_canvas.width - video.videoWidth) / 2.0, 0), 0, video.videoWidth, video.videoHeight);
 
-                if (common.value(data.hashtags, common.default_hashtags)) {
-                    const hashtags = [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',');
-                    chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image: _post_screenshot_canvas.toDataURL('image/jpeg', 0.85).replace(/^data:[^,]*,/, ''), hashtags });
-                } else {
-                    chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image: _post_screenshot_canvas.toDataURL('image/jpeg', 0.85).replace(/^data:[^,]*,/, ''), hashtags: '' });
-                }
+                const hashtags = common.value(data.hashtags, common.default_hashtags) ? [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',') : '';
+
+                chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image: _post_screenshot_canvas.toDataURL('image/jpeg', 0.85).replace(/^data:[^,]*,/, ''), hashtags });
             });
         });
     } else {
