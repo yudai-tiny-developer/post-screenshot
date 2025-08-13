@@ -17,8 +17,9 @@ var _post_screenshot_canvas;
                 context.drawImage(video, Math.max((_post_screenshot_canvas.width - video.videoWidth) / 2.0, 0), 0, video.videoWidth, video.videoHeight);
 
                 const hashtags = common.value(data.hashtags, common.default_hashtags) ? [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',') : '';
+                const encoderOptions = common.value(data.hq, common.default_hq) ? 1.0 : 0.85;
 
-                chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image: _post_screenshot_canvas.toDataURL('image/jpeg', 0.85).replace(/^data:[^,]*,/, ''), hashtags });
+                chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image: _post_screenshot_canvas.toDataURL('image/jpeg', encoderOptions).replace(/^data:[^,]*,/, ''), hashtags });
             });
         });
     } else {

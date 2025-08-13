@@ -23,13 +23,18 @@ function main(common, settings, progress, data) {
 
     {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Open in Popup window'));
+        row.appendChild(settings.createLabel(cell_class, 'Open in a popup window'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'popup', data.popup, common.default_popup, common.value));
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Use hashtags in window title'));
+        row.appendChild(settings.createLabel(cell_class, 'Use hashtags in the window title'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'hashtags', data.hashtags, common.default_hashtags, common.value));
+        container.appendChild(row);
+    } {
+        const row = settings.createRow(row_class);
+        row.appendChild(settings.createLabel(cell_class, 'Post a high-quality screenshot'));
+        row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'hq', data.hq, common.default_hq, common.value));
         container.appendChild(row);
     }
 
