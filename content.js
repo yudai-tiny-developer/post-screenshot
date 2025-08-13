@@ -4,8 +4,31 @@ import(chrome.runtime.getURL('common.js')).then(common => {
 
 function main(common) {
     try {
-        chrome.runtime.sendMessage({ msg: 'GetScreenShot' }).then(base64image => {
-            if (base64image) {
+        chrome.runtime.sendMessage({ msg: 'GetScreenShot' }).then(response => {
+            if (response.base64image) {
+                const filename = `${response.title}.jpg`;
+
+                const byteCharacters = atob(response.base64image);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const blob = new Blob([new Uint8Array(byteNumbers)], { type: 'image/jpeg' });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(new File([blob], filename, { type: 'image/jpeg' }));
+
+                chrome.storage.local.get(common.storage, data => {
+                    if (common.value(data.download, common.default_download)) {
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }
+                });
+
                 const detect_interval = setInterval(() => {
                     const dialog = document.body.querySelector('div[role="dialog"]');
                     if (!dialog) {
@@ -18,16 +41,6 @@ function main(common) {
                     }
 
                     clearInterval(detect_interval);
-
-                    const byteCharacters = atob(base64image);
-                    const byteNumbers = new Array(byteCharacters.length);
-                    for (let i = 0; i < byteCharacters.length; i++) {
-                        byteNumbers[i] = byteCharacters.charCodeAt(i);
-                    }
-                    const byteArray = new Uint8Array(byteNumbers);
-                    const blob = new Blob([byteArray], { type: 'image/jpeg' });
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(new File([blob], 'QuickPostScreenShot.jpg', { type: 'image/jpeg' }));
 
                     target.dispatchEvent(new DragEvent('drop', {
                         bubbles: true,
