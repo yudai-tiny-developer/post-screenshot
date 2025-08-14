@@ -54,7 +54,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                             chrome.tabs.query({ windowId: window_for_post.id }, async tabs => {
                                 if (tabs && tabs.length > 0 && tabs[0].url.startsWith('https://x.com/')) {
                                     chrome.tabs.update(tabs[0].id, { url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, active: true });
-                                    chrome.windows.update(window_for_post.id, { focused: true });
+                                    chrome.windows.update(tabs[0].windowId, { focused: true });
                                 } else {
                                     window_for_post = await chrome.windows.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, type: 'popup' });
                                 }
@@ -67,6 +67,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                             chrome.tabs.get(tab_for_post.id, async tab => {
                                 if (tab && tab.url.startsWith('https://x.com/')) {
                                     chrome.tabs.update(tab.id, { url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, active: true });
+                                    chrome.windows.update(tab.windowId, { focused: true });
                                 } else {
                                     tab_for_post = await chrome.tabs.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}` });
                                 }
