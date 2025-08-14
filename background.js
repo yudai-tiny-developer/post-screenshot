@@ -54,6 +54,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                             chrome.tabs.query({ windowId: window_for_post.id }, async tabs => {
                                 if (tabs && tabs.length > 0 && tabs[0].url.startsWith('https://x.com/')) {
                                     chrome.tabs.update(tabs[0].id, { url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, active: true });
+                                    chrome.windows.update(window_for_post.id, { focused: true });
                                 } else {
                                     window_for_post = await chrome.windows.create({ url: `https://x.com/intent/post?screenshot=1&hashtags=${message.hashtags}`, type: 'popup' });
                                 }
