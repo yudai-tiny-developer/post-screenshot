@@ -71,7 +71,7 @@ var _post_screenshot_pushInterval;
                     if (!_post_screenshot_dialog) {
                         function close() {
                             clearInterval(_post_screenshot_pushInterval);
-                            _post_screenshot_dialog.style.display = 'none';
+                            _post_screenshot_dialog.close();
                             video.play();
                         }
 
@@ -187,10 +187,9 @@ var _post_screenshot_pushInterval;
                     video.pause();
 
                     const rect = video.getBoundingClientRect();
-                    _post_screenshot_dialog.style.left = `${rect.left + 4}px`;
-                    _post_screenshot_dialog.style.top = `${rect.top + 4}px`;
-                    _post_screenshot_dialog.style.display = 'block';
-                    _post_screenshot_dialog.focus();
+                    _post_screenshot_dialog.style.left = `${rect.left + window.scrollX + 4}px`;
+                    _post_screenshot_dialog.style.top = `${rect.top + window.scrollY + 4}px`;
+                    _post_screenshot_dialog.show();
                 } else {
                     request_screenshot();
                 }
