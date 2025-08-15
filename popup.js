@@ -23,6 +23,11 @@ function main(common, settings, progress, data) {
 
     {
         const row = settings.createRow(row_class);
+        row.appendChild(settings.createLabel(cell_class, 'Post after taking a screenshot'));
+        row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'post', data.post, common.default_post, common.value));
+        container.appendChild(row);
+    } {
+        const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, 'Open in a popup window'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'popup', data.popup, common.default_popup, common.value));
         container.appendChild(row);
