@@ -1,12 +1,34 @@
 var _post_screenshot_canvas;
 var _post_screenshot_dialog;
+var _post_screenshot_pushInterval;
 
 (() => {
     const video = document.body.querySelector('video');
     if (video) {
         import(chrome.runtime.getURL('common.js')).then(common => {
-            chrome.storage.local.get(common.storage, data => {
-                function screenshot() {
+            function sanitize(title) {
+                const sanitized = title.replace(/[\\/:*?"<>|\x00-\x1F]/g, '_').replace(/[ .]+$/, '');
+                if (sanitized) {
+                    return sanitized;
+                } else {
+                    return '_';
+                }
+            }
+
+            function now() {
+                const now = new Date();
+                const yyyy = now.getFullYear();
+                const mm = String(now.getMonth() + 1).padStart(2, '0');
+                const dd = String(now.getDate()).padStart(2, '0');
+                const hh = String(now.getHours()).padStart(2, '0');
+                const mi = String(now.getMinutes()).padStart(2, '0');
+                const ss = String(now.getSeconds()).padStart(2, '0');
+
+                return `${yyyy}${mm}${dd}${hh}${mi}${ss}`;
+            }
+
+            function request_screenshot() {
+                chrome.storage.local.get(common.storage, data => {
                     _post_screenshot_canvas = _post_screenshot_canvas ?? document.createElement('canvas');
                     _post_screenshot_canvas.width = video.videoWidth;
                     _post_screenshot_canvas.height = video.videoHeight;
@@ -18,65 +40,84 @@ var _post_screenshot_dialog;
                     const context = _post_screenshot_canvas.getContext('2d');
                     context.drawImage(video, Math.max((_post_screenshot_canvas.width - video.videoWidth) / 2.0, 0), 0, video.videoWidth, video.videoHeight);
 
-                    const hashtags = common.value(data.hashtags, common.default_hashtags) ? [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',') : '';
                     const encoderOptions = common.value(data.hq, common.default_hq) ? 1.0 : 0.85;
 
-                    chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image: _post_screenshot_canvas.toDataURL('image/jpeg', encoderOptions).replace(/^data:[^,]*,/, ''), title: document.title, hashtags });
-                }
+                    const base64image = _post_screenshot_canvas.toDataURL('image/jpeg', encoderOptions).replace(/^data:[^,]*,/, '');
+                    const title = `${sanitize(document.title)}_${now()}.jpg`;
+                    const hashtags = common.value(data.hashtags, common.default_hashtags) ? [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',') : '';
 
+                    if (common.value(data.post, common.default_post)) {
+                        chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image, title, hashtags });
+                    }
+
+                    if (common.value(data.download, common.default_download)) {
+                        const blob = common.create_blob(base64image);
+
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        console.log(a.href);
+                        a.download = title;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        console.log(a.href);
+                        URL.revokeObjectURL(a.href);
+                    }
+                });
+            }
+
+            chrome.storage.local.get(common.storage, data => {
                 if (common.value(data.seek, common.default_seek)) {
-                    let pushInterval;
+                    if (!_post_screenshot_dialog) {
+                        function close() {
+                            clearInterval(_post_screenshot_pushInterval);
+                            _post_screenshot_dialog.style.display = 'none';
+                            video.play();
+                        }
 
-                    function close() {
-                        clearInterval(pushInterval);
-                        _post_screenshot_dialog.style.display = 'none';
-                        video.play();
-                    }
+                        function step_back() {
+                            video.currentTime -= 1.0 / 60.0;
+                        }
 
-                    function step_back() {
-                        video.currentTime -= 1.0 / 60.0;
-                    }
+                        function step_forward() {
+                            video.currentTime += 1.0 / 60.0;
+                        }
 
-                    function step_forward() {
-                        video.currentTime += 1.0 / 60.0;
-                    }
+                        function rewind() {
+                            video.currentTime -= 1.0;
+                        }
 
-                    function rewind() {
-                        video.currentTime -= 1.0;
-                    }
+                        function fast_forward() {
+                            video.currentTime += 1.0;
+                        }
 
-                    function fast_forward() {
-                        video.currentTime += 1.0;
-                    }
-
-                    function take_screenshot() {
-                        close();
-                        screenshot();
-                    }
-
-                    function seek(e) {
-                        if (e.key === 'ArrowLeft') {
-                            e.preventDefault();
-                            step_back();
-                        } else if (e.key === 'ArrowRight') {
-                            e.preventDefault();
-                            step_forward();
-                        } else if (e.key === 'ArrowUp') {
-                            e.preventDefault();
-                            rewind();
-                        } else if (e.key === 'ArrowDown') {
-                            e.preventDefault();
-                            fast_forward();
-                        } else if (e.key === 'Enter') {
-                            e.preventDefault();
-                            take_screenshot();
-                        } else if (e.key === 'Escape') {
-                            e.preventDefault();
+                        function take_screenshot() {
+                            request_screenshot();
                             close();
                         }
-                    }
 
-                    if (!_post_screenshot_dialog) {
+                        function seek(e) {
+                            if (e.key === 'ArrowLeft') {
+                                e.preventDefault();
+                                step_back();
+                            } else if (e.key === 'ArrowRight') {
+                                e.preventDefault();
+                                step_forward();
+                            } else if (e.key === 'ArrowUp') {
+                                e.preventDefault();
+                                rewind();
+                            } else if (e.key === 'ArrowDown') {
+                                e.preventDefault();
+                                fast_forward();
+                            } else if (e.key === 'Enter') {
+                                e.preventDefault();
+                                take_screenshot();
+                            } else if (e.key === 'Escape') {
+                                e.preventDefault();
+                                close();
+                            }
+                        }
+
                         _post_screenshot_dialog = document.createElement('dialog');
                         _post_screenshot_dialog.id = '_post_screenshot_dialog';
                         _post_screenshot_dialog.addEventListener('focusout', (e) => {
@@ -116,8 +157,8 @@ var _post_screenshot_dialog;
                             cellKeyButton.type = 'button';
                             cellKeyButton.value = item.key;
                             cellKeyButton.addEventListener('click', item.callback);
-                            cellKeyButton.addEventListener('mousedown', () => { clearInterval(pushInterval); pushInterval = setInterval(item.callback, 100); });
-                            cellKeyButton.addEventListener('mouseup', () => { clearInterval(pushInterval); });
+                            cellKeyButton.addEventListener('mousedown', () => { clearInterval(_post_screenshot_pushInterval); _post_screenshot_pushInterval = setInterval(item.callback, 100); });
+                            cellKeyButton.addEventListener('mouseup', () => { clearInterval(_post_screenshot_pushInterval); });
                             cellKey.appendChild(cellKeyButton);
 
                             const cellSeparator = document.createElement('div');
@@ -151,7 +192,7 @@ var _post_screenshot_dialog;
                     _post_screenshot_dialog.style.display = 'block';
                     _post_screenshot_dialog.focus();
                 } else {
-                    screenshot();
+                    request_screenshot();
                 }
             });
         });

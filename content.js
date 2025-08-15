@@ -6,29 +6,6 @@ function main(common) {
     try {
         chrome.runtime.sendMessage({ msg: 'GetScreenShot' }).then(response => {
             if (response.base64image) {
-                const filename = `${response.title}.jpg`;
-
-                const byteCharacters = atob(response.base64image);
-                const byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                const blob = new Blob([new Uint8Array(byteNumbers)], { type: 'image/jpeg' });
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(new File([blob], filename, { type: 'image/jpeg' }));
-
-                chrome.storage.local.get(common.storage, data => {
-                    if (common.value(data.download, common.default_download)) {
-                        const a = document.createElement('a');
-                        a.href = URL.createObjectURL(blob);
-                        a.download = filename;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                    }
-                });
-
                 const detect_interval = setInterval(() => {
                     const dialog = document.body.querySelector('div[role="dialog"]');
                     if (!dialog) {
@@ -41,6 +18,11 @@ function main(common) {
                     }
 
                     clearInterval(detect_interval);
+
+                    const blob = common.create_blob(response.base64image);
+
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(new File([blob], response.title, { type: 'image/jpeg' }));
 
                     target.dispatchEvent(new DragEvent('drop', {
                         bubbles: true,
