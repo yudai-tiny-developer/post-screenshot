@@ -126,7 +126,6 @@ var _post_screenshot_pushInterval;
                             }
                         });
                         _post_screenshot_dialog.addEventListener('keydown', seek);
-                        _post_screenshot_dialog.style.position = 'fixed';
                         _post_screenshot_dialog.style.backgroundColor = 'black';
                         _post_screenshot_dialog.style.color = 'white';
                         _post_screenshot_dialog.style.fontSize = '14px';
@@ -187,8 +186,16 @@ var _post_screenshot_pushInterval;
                     video.pause();
 
                     const rect = video.getBoundingClientRect();
-                    _post_screenshot_dialog.style.left = `${rect.left + window.scrollX + 4}px`;
-                    _post_screenshot_dialog.style.top = `${rect.top + window.scrollY + 4}px`;
+                    if (document.fullscreenElement) {
+                        _post_screenshot_dialog.style.position = 'sticky';
+                        _post_screenshot_dialog.style.left = `${rect.left + 4}px`;
+                        _post_screenshot_dialog.style.top = `${rect.top + 4}px`;
+                    } else {
+                        _post_screenshot_dialog.style.position = 'fixed';
+                        _post_screenshot_dialog.style.left = `${rect.left + window.scrollX + 4}px`;
+                        _post_screenshot_dialog.style.top = `${rect.top + window.scrollY + 4}px`;
+                    }
+
                     _post_screenshot_dialog.show();
                 } else {
                     request_screenshot();
