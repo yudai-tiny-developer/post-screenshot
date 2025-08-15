@@ -41,6 +41,11 @@ function main(common, settings, progress, data) {
         row.appendChild(settings.createLabel(cell_class, 'Download a screenshot'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'download', data.download, common.default_download, common.value));
         container.appendChild(row);
+    } {
+        const row = settings.createRow(row_class);
+        row.appendChild(settings.createLabel(cell_class, 'Seek before taking a screenshot<br>(Only effective if the platform supports seeking)'));
+        row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'seek', data.seek, common.default_seek, common.value));
+        container.appendChild(row);
     }
 
     settings.registerResetButton(reset_button, progress_div, progress_class, done_class, toggle_class, input_class, progress);
