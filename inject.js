@@ -54,6 +54,7 @@ var _post_screenshot_dialog;
                         _post_screenshot_dialog.style.color = 'white';
                         _post_screenshot_dialog.style.fontSize = '16px';
                         _post_screenshot_dialog.style.margin = 0;
+                        _post_screenshot_dialog.style.zIndex = video.style.zIndex + 1;
 
                         const keyActions = [
                             { key: "←", action: "Step back" },

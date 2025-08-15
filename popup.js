@@ -43,7 +43,7 @@ function main(common, settings, progress, data) {
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Seek before taking a screenshot'));
+        row.appendChild(settings.createLabel(cell_class, 'Seek before taking a screenshot<br>(Only effective if the platform supports seeking)'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'seek', data.seek, common.default_seek, common.value));
         container.appendChild(row);
     }
