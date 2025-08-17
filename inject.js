@@ -4,31 +4,26 @@ var _post_screenshot_pushInterval;
 
 (() => {
     const video = document.body.querySelector('video');
-    if (video) {
+    if (video && video.readyState !== 0) {
         import(chrome.runtime.getURL('common.js')).then(common => {
-            function sanitize(title) {
-                const sanitized = title.replace(/[\\/:*?"<>|\x00-\x1F]/g, '_').replace(/[ .]+$/, '');
-                if (sanitized) {
-                    return sanitized;
-                } else {
-                    return '_';
-                }
-            }
-
-            function now() {
-                const now = new Date();
-                const yyyy = now.getFullYear();
-                const mm = String(now.getMonth() + 1).padStart(2, '0');
-                const dd = String(now.getDate()).padStart(2, '0');
-                const hh = String(now.getHours()).padStart(2, '0');
-                const mi = String(now.getMinutes()).padStart(2, '0');
-                const ss = String(now.getSeconds()).padStart(2, '0');
-
-                return `${yyyy}${mm}${dd}${hh}${mi}${ss}`;
-            }
-
             function request_screenshot() {
                 chrome.storage.local.get(common.storage, data => {
+                    function sanitize(title) {
+                        return title.replace(/[\\/:*?"<>|\x00-\x1F]/g, '_').replace(/[ .]+$/, '') ?? '_';
+                    }
+
+                    function now() {
+                        const now = new Date();
+                        const yyyy = now.getFullYear();
+                        const mm = String(now.getMonth() + 1).padStart(2, '0');
+                        const dd = String(now.getDate()).padStart(2, '0');
+                        const hh = String(now.getHours()).padStart(2, '0');
+                        const mi = String(now.getMinutes()).padStart(2, '0');
+                        const ss = String(now.getSeconds()).padStart(2, '0');
+
+                        return `${yyyy}${mm}${dd}${hh}${mi}${ss}`;
+                    }
+
                     _post_screenshot_canvas = _post_screenshot_canvas ?? document.createElement('canvas');
                     _post_screenshot_canvas.width = video.videoWidth;
                     _post_screenshot_canvas.height = video.videoHeight;
@@ -55,12 +50,10 @@ var _post_screenshot_pushInterval;
 
                         const a = document.createElement('a');
                         a.href = URL.createObjectURL(blob);
-                        console.log(a.href);
                         a.download = title;
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
-                        console.log(a.href);
                         URL.revokeObjectURL(a.href);
                     }
                 });
