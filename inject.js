@@ -4,7 +4,7 @@ var _post_screenshot_pushInterval;
 
 (() => {
     const video = document.body.querySelector('video');
-    if (video) {
+    if (video && video.readyState !== 0) {
         import(chrome.runtime.getURL('common.js')).then(common => {
             function sanitize(title) {
                 const sanitized = title.replace(/[\\/:*?"<>|\x00-\x1F]/g, '_').replace(/[ .]+$/, '');
@@ -55,12 +55,10 @@ var _post_screenshot_pushInterval;
 
                         const a = document.createElement('a');
                         a.href = URL.createObjectURL(blob);
-                        console.log(a.href);
                         a.download = title;
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
-                        console.log(a.href);
                         URL.revokeObjectURL(a.href);
                     }
                 });
