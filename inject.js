@@ -46,6 +46,8 @@ var _post_screenshot_pushInterval;
                     }
 
                     if (common.value(data.download, common.default_download)) {
+                        const base64image = _post_screenshot_canvas.toDataURL('image/png').replace(/^data:[^,]*,/, '');
+                        const title = `${sanitize(document.title)}_${now()}.png`;
                         const blob = common.create_blob(base64image);
 
                         const a = document.createElement('a');
