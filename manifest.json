@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Quick Post ScreenShot",
-    "version": "1.5.6",
+    "version": "1.6.0",
     "description": "__MSG_appDesc__",
     "default_locale": "en",
     "icons": {
@@ -17,6 +17,15 @@
         {
             "js": [
                 "content.js"
+            ],
+            "run_at": "document_end",
+            "matches": [
+                "*://*/*"
+            ]
+        },
+        {
+            "js": [
+                "post.js"
             ],
             "run_at": "document_end",
             "matches": [
@@ -40,17 +49,12 @@
     },
     "options_ui": {
         "page": "popup.html",
-        "open_in_tab": false
+        "open_in_tab": true
     },
     "permissions": [
         "storage",
         "tabs",
         "activeTab",
         "scripting"
-    ],
-    "commands": {
-        "post-screenshot": {
-            "description": "Quick Post ScreenShot"
-        }
-    }
+    ]
 }

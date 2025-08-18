@@ -17,10 +17,6 @@ chrome.action.onClicked.addListener(tab => {
     screenshot(tab);
 });
 
-chrome.commands.onCommand.addListener((command, tab) => {
-    screenshot(tab);
-});
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.msg) {
         case 'ScreenShot':
