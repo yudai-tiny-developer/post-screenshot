@@ -145,6 +145,8 @@ export function createKeyInput(input_class, label, default_label, common_value, 
             if (onChange) {
                 onChange(input);
             }
+
+            input.dispatchEvent(new Event('change'));
         }
     });
 
@@ -161,6 +163,41 @@ export function createKeyInput(input_class, label, default_label, common_value, 
     });
 
     return input;
+}
+
+export function createClearButton(input, default_label, onChange) {
+    const span = document.createElement('span');
+    span.classList.add('filter-clear');
+    span.innerHTML = '×';
+
+    if (onChange) {
+        span.addEventListener('click', () => {
+            input.dispatchEvent(new Event('reset'));
+            onChange(input);
+
+            if (input.value === default_label) {
+                span.style.visibility = 'hidden';
+            } else {
+                span.style.visibility = 'visible';
+            }
+        });
+    }
+
+    input.addEventListener('change', () => {
+        if (input.value === default_label) {
+            span.style.visibility = 'hidden';
+        } else {
+            span.style.visibility = 'visible';
+        }
+    });
+
+    if (input.value === default_label) {
+        span.style.visibility = 'hidden';
+    } else {
+        span.style.visibility = 'visible';
+    }
+
+    return span;
 }
 
 let state = {};
@@ -193,6 +230,7 @@ function resetSettings(args) {
 
     for (const input of document.body.querySelectorAll('input.' + args.input_class)) {
         input.value = input.getAttribute('defaultValue');
+        input.dispatchEvent(new Event('change'));
     }
 
     chrome.storage.local.clear();
