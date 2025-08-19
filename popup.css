@@ -96,6 +96,12 @@ div#reset_progress.done {
     width: 100%;
 }
 
+span.filter-clear {
+    margin-right: 8px;
+    font-size: 22px;
+    cursor: pointer;
+}
+
 @media (prefers-color-scheme: light) {
     body {
         background-color: rgb(255, 255, 255);
@@ -143,6 +149,11 @@ div#reset_progress.done {
 
     div#reset_progress.done {
         background-color: rgb(73, 249, 73);
+    }
+
+    span.filter-clear {
+        color: rgb(0, 0, 0);
+        fill: rgb(0, 0, 0);
     }
 }
 
@@ -193,5 +204,10 @@ div#reset_progress.done {
 
     div#reset_progress.done {
         background-color: rgb(73, 249, 73);
+    }
+
+    span.filter-clear {
+        color: rgb(255, 255, 255);
+        fill: rgb(255, 255, 255);
     }
 }
