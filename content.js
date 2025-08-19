@@ -13,6 +13,7 @@ function main(common) {
             settings_seek = common.value(data.seek, common.default_seek);
             settings_shortcut = common.parse_key(common.value(data.shortcut, common.default_shortcut));
             settings_shortcut_seek = common.parse_key(common.value(data.shortcut_seek, common.default_shortcut_seek));
+            settings_shortcut_recording = common.parse_key(common.value(data.shortcut_recording, common.default_shortcut_recording));
         });
     }
 
@@ -31,18 +32,20 @@ function main(common) {
         const encoderOptions = settings_hq ? 1.0 : 0.85;
 
         if (settings_post) {
-            const base64image = canvas.toDataURL('image/jpeg', encoderOptions).replace(/^data:[^,]*,/, '');
+            const type = 'image/jpeg';
+            const base64image = canvas.toDataURL(type, encoderOptions).replace(/^data:[^,]*,/, '');
             const title = `${sanitize(document.title)}_${now()}.jpg`;
             const hashtags = settings_hashtags ? [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',') : '';
 
-            chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image, title, hashtags });
+            chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image, type, title, hashtags });
         }
 
         if (settings_download) {
-            const base64image = canvas.toDataURL('image/png').replace(/^data:[^,]*,/, '');
+            const type = 'image/png';
+            const base64image = canvas.toDataURL(type).replace(/^data:[^,]*,/, '');
             const title = `${sanitize(document.title)}_${now()}.png`;
 
-            const blob = common.create_blob(base64image, 'image/png');
+            const blob = common.create_blob(base64image, type);
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = title;
@@ -207,6 +210,144 @@ function main(common) {
         dialog.show();
     }
 
+    function record() {
+        if (recording) {
+            close_recording_dialog();
+        } else {
+            show_recording_dialog();
+
+            const type = 'video/mp4';
+
+            canvas = canvas ?? document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            if (canvas.height > canvas.width) {
+                canvas.width = (canvas.height * 3.0) / 4.0;
+            }
+
+            const context = canvas.getContext('2d');
+            const canvasStream = canvas.captureStream(30);
+
+            audioCtx = audioCtx ?? new AudioContext();
+            source = source ?? audioCtx.createMediaElementSource(video);
+            dest = dest ?? audioCtx.createMediaStreamDestination();
+            source.connect(dest);
+            source.connect(audioCtx.destination);
+            const audioStream = dest.stream;
+
+            const combinedStream = new MediaStream([
+                ...canvasStream.getVideoTracks(),
+                ...audioStream.getAudioTracks()
+            ]);
+
+            const recorder = new MediaRecorder(combinedStream, { mimeType: type });
+            const chunks = [];
+
+            recorder.ondataavailable = (e) => chunks.push(e.data);
+
+            recorder.onstop = async () => {
+                const blob = new Blob(chunks, { type });
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    if (recording_result) {
+                        recording_result = false;
+
+                        if (settings_post) {
+                            const base64image = reader.result.replace(/^data:[^,]*,/, '');
+                            const title = `${sanitize(document.title)}_${now()}.mp4`;
+                            const hashtags = settings_hashtags ? [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',') : '';
+
+                            chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image, type, title, hashtags });
+                        }
+
+                        if (settings_download) {
+                            const base64image = reader.result.replace(/^data:[^,]*,/, '');
+                            const title = `${sanitize(document.title)}_${now()}.mp4`;
+
+                            const blob = common.create_blob(base64image, type);
+                            const a = document.createElement('a');
+                            a.href = URL.createObjectURL(blob);
+                            a.download = title;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(a.href);
+                        }
+                    }
+                };
+                reader.readAsDataURL(blob);
+            };
+
+            video.play();
+            recorder.start();
+            function draw() {
+                if (recording && !video.ended) {
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    requestAnimationFrame(draw);
+                } else {
+                    recorder.stop();
+                }
+            }
+            draw();
+        }
+    }
+
+    function show_recording_dialog() {
+        recording = true;
+        recording_result = true;
+
+        if (!recording_dialog) {
+            recording_dialog = document.createElement('dialog');
+            recording_dialog.id = '_post_screenshot_recording_dialog';
+            recording_dialog.addEventListener('focusout', (e) => {
+                if (!recording_dialog.contains(e.relatedTarget)) {
+                    if (recording) {
+                        recording_result = false;
+                    }
+                    close_recording_dialog();
+                }
+            });
+            recording_dialog.addEventListener('keydown', dialog_seek);
+            recording_dialog.style.backgroundColor = 'black';
+            recording_dialog.style.color = 'red';
+            recording_dialog.style.fontSize = '14px';
+            recording_dialog.style.margin = 0;
+            recording_dialog.style.outline = 'none';
+            recording_dialog.title = 'Press the shortcut key again: Stop recording\nUnfocus: Cancel recording';
+
+            const div = document.createElement('div');
+            div.style.textAlign = 'center';
+            div.style.paddingLeft = '4px';
+            div.style.paddingRight = '4px';
+            div.textContent = 'REC';
+
+            recording_dialog.appendChild(div);
+
+            document.body.appendChild(recording_dialog);
+        }
+
+        recording_dialog.style.zIndex = video.style.zIndex + 1;
+
+        const rect = video.getBoundingClientRect();
+        if (document.fullscreenElement) {
+            recording_dialog.style.position = 'sticky';
+            recording_dialog.style.left = `${rect.left + 4}px`;
+            recording_dialog.style.top = `${rect.top + 4}px`;
+        } else {
+            recording_dialog.style.position = 'fixed';
+            recording_dialog.style.left = `${rect.left + window.scrollX + 4}px`;
+            recording_dialog.style.top = `${rect.top + window.scrollY + 4}px`;
+        }
+
+        recording_dialog.show();
+    }
+
+    function close_recording_dialog() {
+        recording = false;
+        recording_dialog.close();
+    }
+
     function shortcut_command(e, type) {
         video = document.body.querySelector('video');
         if (video && video.readyState !== 0) {
@@ -218,6 +359,8 @@ function main(common) {
             } else if (type === 2) {
                 video.pause();
                 show_seek_dialog();
+            } else if (type === 3) {
+                record();
             } else {
                 if (settings_seek) {
                     video.pause();
@@ -234,10 +377,19 @@ function main(common) {
     let settings_hq = common.default_hq;
     let settings_download = common.default_download;
     let settings_seek = common.default_seek;
+    let settings_shortcut = common.default_shortcut;
+    let settings_shortcut_seek = common.default_shortcut_seek;
+    let settings_shortcut_recording = common.default_shortcut_recording;
     let video;
     let canvas;
     let dialog;
     let push_interval;
+    let recording;
+    let recording_result;
+    let audioCtx;
+    let source;
+    let dest;
+    let recording_dialog;
 
     chrome.storage.onChanged.addListener(loadSettings);
 
@@ -283,6 +435,12 @@ function main(common) {
             e.altKey === settings_shortcut_seek.altKey &&
             e.metaKey === settings_shortcut_seek.metaKey) {
             shortcut_command(e, 2);
+        } else if (e.key === settings_shortcut_recording.key &&
+            e.ctrlKey === settings_shortcut_recording.ctrlKey &&
+            e.shiftKey === settings_shortcut_recording.shiftKey &&
+            e.altKey === settings_shortcut_recording.altKey &&
+            e.metaKey === settings_shortcut_recording.metaKey) {
+            shortcut_command(e, 3);
         }
     });
 }

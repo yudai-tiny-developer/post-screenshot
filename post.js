@@ -15,10 +15,10 @@ try {
                 clearInterval(detect_interval);
 
                 import(chrome.runtime.getURL('common.js')).then(common => {
-                    const blob = common.create_blob(response.base64image, 'image/jpeg');
+                    const blob = common.create_blob(response.base64image, response.type);
 
                     const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(new File([blob], response.title, { type: 'image/jpeg' }));
+                    dataTransfer.items.add(new File([blob], response.title, { type: response.type }));
 
                     target.dispatchEvent(new DragEvent('drop', {
                         bubbles: true,

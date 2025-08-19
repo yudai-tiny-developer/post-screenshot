@@ -2,6 +2,8 @@ import * as common from './common.js';
 
 let base64image;
 let title;
+let type;
+
 let tab_for_post;
 let window_for_post;
 
@@ -15,6 +17,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if (message.base64image) {
                 base64image = message.base64image;
                 title = message.title;
+                type = message.type;
 
                 chrome.storage.local.get(common.storage, async data => {
                     if (common.value(data.popup, common.default_popup)) {
@@ -48,9 +51,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
             return;
         case 'GetScreenShot':
-            sendResponse({ base64image, title });
+            sendResponse({ base64image, title, type });
             base64image = undefined;
             title = undefined;
+            type = undefined;
             return true;
     }
 });
