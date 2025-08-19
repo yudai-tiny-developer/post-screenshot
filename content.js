@@ -207,9 +207,12 @@ function main(common) {
         dialog.show();
     }
 
-    function shortcut_command(type) {
+    function shortcut_command(e, type) {
         video = document.body.querySelector('video');
         if (video && video.readyState !== 0) {
+            e.preventDefault();
+            e.stopPropagation();
+
             if (type === 1) {
                 take_screenshot();
             } else if (type === 2) {
@@ -223,8 +226,6 @@ function main(common) {
                     take_screenshot();
                 }
             }
-        } else {
-            chrome.runtime.sendMessage({ msg: 'VideoNotFound' });
         }
     }
 
@@ -242,21 +243,45 @@ function main(common) {
 
     loadSettings();
 
-    document.addEventListener('_post_screenshot_take_screenshot', () => shortcut_command());
+    document.addEventListener('_post_screenshot_take_screenshot', e => shortcut_command(e, 0));
 
     document.addEventListener('keydown', e => {
+        switch (e.target?.type) {
+            case 'textarea':
+            case 'date':
+            case 'datetime-local':
+            case 'email':
+            case 'month':
+            case 'number':
+            case 'password':
+            case 'search':
+            case 'tel':
+            case 'text':
+            case 'time':
+            case 'url':
+            case 'week':
+                return;
+        }
+
+        switch (e.target?.getAttribute('role')) {
+            case 'textbox':
+                return;
+        }
+
+        console.log(e.target);
+
         if (e.key === settings_shortcut.key &&
             e.ctrlKey === settings_shortcut.ctrlKey &&
             e.shiftKey === settings_shortcut.shiftKey &&
             e.altKey === settings_shortcut.altKey &&
             e.metaKey === settings_shortcut.metaKey) {
-            shortcut_command(1);
+            shortcut_command(e, 1);
         } else if (e.key === settings_shortcut_seek.key &&
             e.ctrlKey === settings_shortcut_seek.ctrlKey &&
             e.shiftKey === settings_shortcut_seek.shiftKey &&
             e.altKey === settings_shortcut_seek.altKey &&
             e.metaKey === settings_shortcut_seek.metaKey) {
-            shortcut_command(2);
+            shortcut_command(e, 2);
         }
     });
 }

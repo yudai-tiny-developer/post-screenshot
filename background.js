@@ -5,16 +5,8 @@ let title;
 let tab_for_post;
 let window_for_post;
 
-function screenshot(tab) {
-    chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['inject.js'] });
-}
-
-function error_popup(popup) {
-    chrome.action.setPopup({ popup: popup }).then(() => { chrome.action.openPopup().then(() => { chrome.action.setPopup({ popup: '' }); }); });
-}
-
 chrome.action.onClicked.addListener(tab => {
-    screenshot(tab);
+    chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['inject.js'] });
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -53,8 +45,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                         }
                     }
                 });
-            } else {
-                error_popup('InvalidVideo.html');
             }
             return;
         case 'GetScreenShot':
@@ -62,11 +52,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             base64image = undefined;
             title = undefined;
             return true;
-        case 'VideoNotFound':
-            error_popup('VideoNotFound.html');
-            return;
-        case 'InvalidVideo':
-            error_popup('InvalidVideo.html');
-            return;
     }
 });
