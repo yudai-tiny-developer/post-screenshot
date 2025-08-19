@@ -79,7 +79,7 @@ export function createKeyInput(input_class, label, default_label, common_value, 
             'Esc': 'Escape',
         };
 
-        if (key.length === 1) return key.toUpperCase();
+        if (key.length === 1 && key !== ' ') return key.toUpperCase();
 
         if (/^F\d{1,2}$/.test(key)) return key;
 

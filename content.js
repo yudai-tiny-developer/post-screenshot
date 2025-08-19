@@ -98,21 +98,27 @@ function main(common) {
     function dialog_seek(e) {
         if (e.key === 'ArrowLeft') {
             e.preventDefault();
+            e.stopPropagation();
             dialog_step_back();
         } else if (e.key === 'ArrowRight') {
             e.preventDefault();
+            e.stopPropagation();
             dialog_step_forward();
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
+            e.stopPropagation();
             dialog_rewind();
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
+            e.stopPropagation();
             dialog_fast_forward();
         } else if (e.key === 'Enter') {
             e.preventDefault();
+            e.stopPropagation();
             dialog_take_screenshot();
         } else if (e.key === 'Escape') {
             e.preventDefault();
+            e.stopPropagation();
             dialog_close();
         }
     }
