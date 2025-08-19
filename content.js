@@ -222,10 +222,6 @@ function main(common) {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
 
-            if (canvas.height > canvas.width) {
-                canvas.width = (canvas.height * 3.0) / 4.0;
-            }
-
             const context = canvas.getContext('2d');
             const canvasStream = canvas.captureStream(settings_hq ? 60 : 30);
 
