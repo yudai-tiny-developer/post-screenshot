@@ -7,6 +7,7 @@ export const storage = [
     'seek',
     'shortcut',
     'shortcut_seek',
+    'shortcut_recording',
 ];
 
 export const default_post = true;
@@ -17,6 +18,7 @@ export const default_download = false;
 export const default_seek = false;
 export const default_shortcut = '';
 export const default_shortcut_seek = '';
+export const default_shortcut_recording = '';
 
 export function value(value, defaultValue) {
     return value === undefined ? defaultValue : value;

@@ -102,6 +102,16 @@ span.filter-clear {
     cursor: pointer;
 }
 
+div.separator-row {
+    display: table-row;
+    height: 2px;
+}
+
+div.separator-cell {
+    display: table-cell;
+    height: 2px;
+}
+
 @media (prefers-color-scheme: light) {
     body {
         background-color: rgb(255, 255, 255);
@@ -154,6 +164,10 @@ span.filter-clear {
     span.filter-clear {
         color: rgb(0, 0, 0);
         fill: rgb(0, 0, 0);
+    }
+
+    div.separator-row {
+        background-color: rgb(73, 73, 73);
     }
 }
 
@@ -209,5 +223,9 @@ span.filter-clear {
     span.filter-clear {
         color: rgb(255, 255, 255);
         fill: rgb(255, 255, 255);
+    }
+
+    div.separator-row {
+        background-color: rgb(187, 187, 187);
     }
 }
