@@ -241,7 +241,11 @@ function main(common) {
                 ...audioStream.getAudioTracks()
             ]);
 
-            const recorder = new MediaRecorder(combinedStream, { mimeType: type });
+            const recorder = new MediaRecorder(combinedStream, {
+                mimeType: `${type};codecs=avc1,mp4a.40.2`,
+                videoBitsPerSecond: 5000000,
+                audioBitsPerSecond: 128000,
+            });
             const chunks = [];
 
             recorder.ondataavailable = (e) => chunks.push(e.data);
