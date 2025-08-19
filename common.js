@@ -6,6 +6,7 @@ export const storage = [
     'download',
     'seek',
     'shortcut',
+    'shortcut_seek',
 ];
 
 export const default_post = true;
@@ -15,6 +16,7 @@ export const default_hq = false;
 export const default_download = false;
 export const default_seek = false;
 export const default_shortcut = 'Alt + Q';
+export const default_shortcut_seek = 'Alt + S';
 
 export function value(value, defaultValue) {
     return value === undefined ? defaultValue : value;
