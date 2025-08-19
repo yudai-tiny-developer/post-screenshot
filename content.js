@@ -263,12 +263,13 @@ function main(common) {
                 return;
         }
 
-        switch (e.target?.getAttribute('role')) {
-            case 'textbox':
-                return;
+        if (e.target?.isContentEditable) {
+            return;
         }
 
-        console.log(e.target);
+        if (e.target?.getAttribute('role') === 'textbox') {
+            return;
+        }
 
         if (e.key === settings_shortcut.key &&
             e.ctrlKey === settings_shortcut.ctrlKey &&
