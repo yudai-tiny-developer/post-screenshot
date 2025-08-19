@@ -227,7 +227,7 @@ function main(common) {
             }
 
             const context = canvas.getContext('2d');
-            const canvasStream = canvas.captureStream(30);
+            const canvasStream = canvas.captureStream(settings_hq ? 60 : 30);
 
             audioCtx = audioCtx ?? new AudioContext();
             source = source ?? audioCtx.createMediaElementSource(video);
@@ -243,8 +243,8 @@ function main(common) {
 
             const recorder = new MediaRecorder(combinedStream, {
                 mimeType: `${type};codecs=avc1,mp4a.40.2`,
-                videoBitsPerSecond: 5000000,
-                audioBitsPerSecond: 128000,
+                videoBitsPerSecond: settings_hq ? 7680000 : 5120000,
+                audioBitsPerSecond: settings_hq ? 192000 : 128000,
             });
             const chunks = [];
 
