@@ -70,8 +70,10 @@ input.toggle:checked+label.switch:after {
 }
 
 input.rate {
+    margin: 8px;
     padding: 8px;
-    width: 60px;
+    width: 180px;
+    text-align: center;
 }
 
 div#reset_container {

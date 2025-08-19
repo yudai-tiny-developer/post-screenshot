@@ -35,25 +35,132 @@ export function createToggle(cell_class, toggle_class, label_class, key, checked
     return div;
 }
 
-export function createNumberStepInput(cell_class, input_class, key, value, defaultValue, minRate, maxRate, stepRate, limitRate) {
-    const div = document.createElement('div');
-    div.classList.add(cell_class);
-
+export function createKeyInput(input_class, label, default_label, common_value, onChange) {
     const input = document.createElement('input');
-    input.id = key;
+    input.setAttribute('type', 'text');
+    input.setAttribute('defaultValue', default_label);
+    input.setAttribute('inputmode', 'none');
+    input.setAttribute('autocomplete', 'off');
     input.classList.add(input_class);
-    input.type = 'number';
-    input.value = limitRate(value, defaultValue, minRate, maxRate, stepRate);
-    input.setAttribute('defaultValue', defaultValue);
-    input.min = minRate;
-    input.max = maxRate;
-    input.step = stepRate;
-    input.addEventListener('change', () => {
-        chrome.storage.local.set({ [key]: limitRate(input.value, defaultValue, minRate, maxRate, stepRate) });
-    });
-    div.appendChild(input);
 
-    return div;
+    if (label) {
+        input.value = common_value(label);
+    } else {
+        input.value = default_label;
+    }
+
+    input.addEventListener('reset', () => {
+        input.value = default_label;
+    });
+
+    function normalizeCombo({ ctrl, alt, shift, meta, key, code }) {
+        const parts = [];
+        if (ctrl) parts.push('Ctrl');
+        if (alt) parts.push('Alt');
+        if (shift) parts.push('Shift');
+        if (meta) parts.push(isMac() ? '⌘' : 'Meta');
+
+        const keyName = normalizeKeyName(key, code);
+        if (keyName) parts.push(keyName);
+        return parts.join(' + ');
+    }
+
+    function normalizeKeyName(key, code) {
+        const mods = ['Control', 'Shift', 'Alt', 'Meta'];
+        if (!key || mods.includes(key)) return '';
+
+        const map = {
+            ' ': 'Space',
+            'Spacebar': 'Space',
+            'ArrowUp': 'ArrowUp',
+            'ArrowDown': 'ArrowDown',
+            'ArrowLeft': 'ArrowLeft',
+            'ArrowRight': 'ArrowRight',
+            'Esc': 'Escape',
+        };
+
+        if (key.length === 1 && key !== ' ') return key.toUpperCase();
+
+        if (/^F\d{1,2}$/.test(key)) return key;
+
+        if (code && code.startsWith('Numpad')) {
+            const np = code.replace(/^Numpad/, '');
+            return 'Numpad ' + np.replace('Add', '+')
+                .replace('Subtract', '-')
+                .replace('Multiply', '*')
+                .replace('Divide', '/')
+                .replace('Decimal', '.');
+        }
+
+        return map[key] || key;
+    }
+
+    function isMac() {
+        return /Mac|iPhone|iPad|iPod/.test(navigator.platform) || /Mac OS|iOS/.test(navigator.userAgent);
+    }
+
+    let listening = false;
+    let prev_value = input.value;
+
+    input.addEventListener('focus', () => {
+        listening = true;
+        input.value = '';
+        input.setAttribute('lang', 'en');
+    });
+
+    input.addEventListener('blur', () => {
+        listening = false;
+        if (input.value === '') {
+            input.value = prev_value;
+        }
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (!listening) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (e.repeat) return;
+
+        const combo = {
+            ctrl: e.ctrlKey,
+            alt: e.altKey,
+            shift: e.shiftKey,
+            meta: e.metaKey,
+            key: e.key,
+            code: e.code
+        };
+
+        if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) {
+            return;
+        }
+
+        const label = normalizeCombo(combo);
+
+        if (label !== 'Process') {
+            input.value = label;
+            prev_value = label;
+
+            if (onChange) {
+                onChange(input);
+            }
+        }
+    });
+
+    input.addEventListener('compositionstart', e => {
+        e.preventDefault();
+        input.blur();
+        input.focus();
+    });
+
+    input.addEventListener('change', (e) => {
+        if (!/^[\x20-\x7E]*$/.test(input.value)) {
+            input.value = prev_value;
+        }
+    });
+
+    return input;
 }
 
 let state = {};
