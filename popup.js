@@ -53,8 +53,13 @@ function main(common, settings, progress, data) {
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Shortcut key'));
+        row.appendChild(settings.createLabel(cell_class, 'Shortcut key: Quick Post'));
         row.appendChild(settings.createKeyInput(input_class, data.shortcut, common.default_shortcut, common.value, input => chrome.storage.local.set({ shortcut: input.value })));
+        container.appendChild(row);
+    } {
+        const row = settings.createRow(row_class);
+        row.appendChild(settings.createLabel(cell_class, 'Shortcut key: Seek before taking a screenshot'));
+        row.appendChild(settings.createKeyInput(input_class, data.shortcut_seek, common.default_shortcut_seek, common.value, input => chrome.storage.local.set({ shortcut_seek: input.value })));
         container.appendChild(row);
     }
 
