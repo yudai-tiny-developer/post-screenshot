@@ -16,6 +16,8 @@ function main(common, settings, progress, data) {
     const input_class = 'rate';
     const progress_class = 'progress';
     const done_class = 'done';
+    const separator_row_class = 'separator-row';
+    const separator_cell_class = 'separator-cell';
 
     const container = document.body.querySelector('div#container');
     const reset_button = document.body.querySelector('input#reset');
@@ -25,35 +27,57 @@ function main(common, settings, progress, data) {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, 'Post after taking a screenshot'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'post', data.post, common.default_post, common.value));
+        row.appendChild(settings.createLabel(cell_class, ''));
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, 'Open in a popup window'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'popup', data.popup, common.default_popup, common.value));
+        row.appendChild(settings.createLabel(cell_class, ''));
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, 'Use hashtags in the window title'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'hashtags', data.hashtags, common.default_hashtags, common.value));
+        row.appendChild(settings.createLabel(cell_class, ''));
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, 'Post a high-quality screenshot'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'hq', data.hq, common.default_hq, common.value));
+        row.appendChild(settings.createLabel(cell_class, ''));
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, 'Download a screenshot'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'download', data.download, common.default_download, common.value));
+        row.appendChild(settings.createLabel(cell_class, ''));
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, 'Seek before taking a screenshot<br>(Only effective if the platform supports seeking)'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'seek', data.seek, common.default_seek, common.value));
+        row.appendChild(settings.createLabel(cell_class, ''));
+        container.appendChild(row);
+    }
+
+    {
+        const row = settings.createRow(separator_row_class);
+        row.appendChild(settings.createLabel(separator_cell_class, ''));
+        row.appendChild(settings.createLabel(separator_cell_class, ''));
+        row.appendChild(settings.createLabel(separator_cell_class, ''));
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Shortcut key: Quick Post'));
+        row.appendChild(settings.createLabel(cell_class, 'Shortcut keys'));
+        row.appendChild(settings.createLabel(cell_class, ''));
+        row.appendChild(settings.createLabel(cell_class, ''));
+        container.appendChild(row);
+    }
+
+    {
+        const row = settings.createRow(row_class);
+        row.appendChild(settings.createLabel(cell_class, 'Quick Post'));
         const onChange = input => chrome.storage.local.set({ shortcut: input.value });
         const input = settings.createKeyInput(input_class, data.shortcut, common.default_shortcut, common.value, onChange);
         row.appendChild(input);
@@ -61,7 +85,7 @@ function main(common, settings, progress, data) {
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Shortcut key: Seek before taking a screenshot'));
+        row.appendChild(settings.createLabel(cell_class, 'Seek before taking a screenshot'));
         const onChange = input => chrome.storage.local.set({ shortcut_seek: input.value });
         const input = settings.createKeyInput(input_class, data.shortcut_seek, common.default_shortcut_seek, common.value, onChange);
         row.appendChild(input);
@@ -69,7 +93,7 @@ function main(common, settings, progress, data) {
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Shortcut key: Start/Stop recording'));
+        row.appendChild(settings.createLabel(cell_class, 'Start/Stop recording<br>(experimental)'));
         const onChange = input => chrome.storage.local.set({ shortcut_recording: input.value });
         const input = settings.createKeyInput(input_class, data.shortcut_recording, common.default_shortcut_recording, common.value, onChange);
         row.appendChild(input);
