@@ -21,7 +21,8 @@
             "run_at": "document_end",
             "matches": [
                 "*://*/*"
-            ]
+            ],
+            "all_frames": true
         },
         {
             "js": [
