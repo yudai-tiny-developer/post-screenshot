@@ -17,13 +17,22 @@ function main(common, settings, progress, data) {
     const progress_class = 'progress';
     const done_class = 'done';
     const separator_row_class = 'separator-row';
+    const separator_line_row_class = 'separator-line-row';
     const separator_cell_class = 'separator-cell';
+    const separator_line_cell_class = 'separator-line-cell';
+    const caption_cell_class = 'caption-cell';
 
     const container = document.body.querySelector('div#container');
     const reset_button = document.body.querySelector('input#reset');
     const progress_div = document.body.querySelector('div#reset_progress');
 
     {
+        const row = settings.createRow(row_class);
+        row.appendChild(settings.createLabel(caption_cell_class, 'Settings'));
+        row.appendChild(settings.createLabel(caption_cell_class, ''));
+        row.appendChild(settings.createLabel(caption_cell_class, ''));
+        container.appendChild(row);
+    } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, 'Post after taking a screenshot'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'post', data.post, common.default_post, common.value));
@@ -43,13 +52,13 @@ function main(common, settings, progress, data) {
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'High-quality screenshot (high load)'));
+        row.appendChild(settings.createLabel(cell_class, 'High-quality screenshot'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'hq', data.hq, common.default_hq, common.value));
         row.appendChild(settings.createLabel(cell_class, ''));
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'High-quality recording (high load)'));
+        row.appendChild(settings.createLabel(cell_class, 'High-quality recording (HIGH LOAD)'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'hq_recording', data.hq_recording, common.default_hq_recording, common.value));
         row.appendChild(settings.createLabel(cell_class, ''));
         container.appendChild(row);
@@ -61,7 +70,7 @@ function main(common, settings, progress, data) {
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Seek before taking a screenshot<br>(Only effective if the platform supports seeking)'));
+        row.appendChild(settings.createLabel(cell_class, 'Seek before taking a screenshot'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'seek', data.seek, common.default_seek, common.value));
         row.appendChild(settings.createLabel(cell_class, ''));
         container.appendChild(row);
@@ -74,16 +83,28 @@ function main(common, settings, progress, data) {
         row.appendChild(settings.createLabel(separator_cell_class, ''));
         container.appendChild(row);
     } {
-        const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Shortcut keys'));
-        row.appendChild(settings.createLabel(cell_class, ''));
-        row.appendChild(settings.createLabel(cell_class, ''));
+        const row = settings.createRow(separator_line_row_class);
+        row.appendChild(settings.createLabel(separator_line_cell_class, ''));
+        row.appendChild(settings.createLabel(separator_line_cell_class, ''));
+        row.appendChild(settings.createLabel(separator_line_cell_class, ''));
+        container.appendChild(row);
+    } {
+        const row = settings.createRow(separator_row_class);
+        row.appendChild(settings.createLabel(separator_cell_class, ''));
+        row.appendChild(settings.createLabel(separator_cell_class, ''));
+        row.appendChild(settings.createLabel(separator_cell_class, ''));
         container.appendChild(row);
     }
 
     {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Quick Post'));
+        row.appendChild(settings.createLabel(caption_cell_class, 'Shortcut keys'));
+        row.appendChild(settings.createLabel(caption_cell_class, ''));
+        row.appendChild(settings.createLabel(caption_cell_class, ''));
+        container.appendChild(row);
+    } {
+        const row = settings.createRow(row_class);
+        row.appendChild(settings.createLabel(cell_class, 'Take a screenshot'));
         const onChange = input => chrome.storage.local.set({ shortcut: input.value });
         const input = settings.createKeyInput(input_class, data.shortcut, common.default_shortcut, common.value, onChange);
         row.appendChild(input);
@@ -91,7 +112,7 @@ function main(common, settings, progress, data) {
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Seek before taking a screenshot'));
+        row.appendChild(settings.createLabel(cell_class, 'Seek and then take a screenshot'));
         const onChange = input => chrome.storage.local.set({ shortcut_seek: input.value });
         const input = settings.createKeyInput(input_class, data.shortcut_seek, common.default_shortcut_seek, common.value, onChange);
         row.appendChild(input);
@@ -99,7 +120,7 @@ function main(common, settings, progress, data) {
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Start/Stop recording<br>(experimental)'));
+        row.appendChild(settings.createLabel(cell_class, 'Start/Stop recording video<br>(experimental)'));
         const onChange = input => chrome.storage.local.set({ shortcut_recording: input.value });
         const input = settings.createKeyInput(input_class, data.shortcut_recording, common.default_shortcut_recording, common.value, onChange);
         row.appendChild(input);

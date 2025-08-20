@@ -18,6 +18,16 @@ div.cell {
     display: table-cell;
     vertical-align: middle;
     padding: 8px;
+    font-size: 14px;
+    font-family: sans-serif;
+}
+
+div.caption-cell {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 18px;
+    font-weight: bold;
+    font-family: serif;
 }
 
 div.footer {
@@ -104,10 +114,20 @@ span.filter-clear {
 
 div.separator-row {
     display: table-row;
+    height: 8px;
+}
+
+div.separator-line-row {
+    display: table-row;
     height: 2px;
 }
 
 div.separator-cell {
+    display: table-cell;
+    height: 8px;
+}
+
+div.separator-line-cell {
     display: table-cell;
     height: 2px;
 }
@@ -123,6 +143,11 @@ div.separator-cell {
     }
 
     div.cell {
+        color: rgb(0, 0, 0);
+        fill: rgb(0, 0, 0);
+    }
+
+    div.caption-cell {
         color: rgb(0, 0, 0);
         fill: rgb(0, 0, 0);
     }
@@ -166,7 +191,7 @@ div.separator-cell {
         fill: rgb(0, 0, 0);
     }
 
-    div.separator-row {
+    div.separator-line-row {
         background-color: rgb(73, 73, 73);
     }
 }
@@ -182,6 +207,11 @@ div.separator-cell {
     }
 
     div.cell {
+        color: rgb(255, 255, 255);
+        fill: rgb(255, 255, 255);
+    }
+
+    div.caption-cell {
         color: rgb(255, 255, 255);
         fill: rgb(255, 255, 255);
     }
@@ -225,7 +255,7 @@ div.separator-cell {
         fill: rgb(255, 255, 255);
     }
 
-    div.separator-row {
+    div.separator-line-row {
         background-color: rgb(187, 187, 187);
     }
 }
