@@ -22,6 +22,21 @@ export const default_shortcut = '';
 export const default_shortcut_seek = '';
 export const default_shortcut_recording = '';
 
+export const label = {
+    caption_settings: chrome.i18n.getMessage('caption_settings'),
+    post: chrome.i18n.getMessage('post'),
+    popup: chrome.i18n.getMessage('popup'),
+    hashtags: chrome.i18n.getMessage('hashtags'),
+    hq: chrome.i18n.getMessage('hq'),
+    hq_recording: chrome.i18n.getMessage('hq_recording'),
+    download: chrome.i18n.getMessage('download'),
+    seek: chrome.i18n.getMessage('seek'),
+    caption_shortcuts: chrome.i18n.getMessage('caption_shortcuts'),
+    shortcut: chrome.i18n.getMessage('shortcut'),
+    shortcut_seek: chrome.i18n.getMessage('shortcut_seek'),
+    shortcut_recording: chrome.i18n.getMessage('shortcut_recording'),
+};
+
 export function value(value, defaultValue) {
     return value === undefined ? defaultValue : value;
 }

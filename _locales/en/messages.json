@@ -1,4 +1,40 @@
 {
+    "caption_settings": {
+        "message": "Settings"
+    },
+    "post": {
+        "message": "Post after taking a screenshot"
+    },
+    "popup": {
+        "message": "Open in a popup window"
+    },
+    "hashtags": {
+        "message": "Use hashtags in the window title"
+    },
+    "hq": {
+        "message": "High-quality screenshot"
+    },
+    "hq_recording": {
+        "message": "High-quality recording (HIGH LOAD)"
+    },
+    "download": {
+        "message": "Download a screenshot"
+    },
+    "seek": {
+        "message": "Seek before taking a screenshot"
+    },
+    "caption_shortcuts": {
+        "message": "Shortcut keys"
+    },
+    "shortcut": {
+        "message": "Take a screenshot"
+    },
+    "shortcut_seek": {
+        "message": "Seek and then take a screenshot"
+    },
+    "shortcut_recording": {
+        "message": "Start/Stop recording video<br>(experimental)"
+    },
     "appDesc": {
         "message": "Supports posting video screenshots to X"
     }
