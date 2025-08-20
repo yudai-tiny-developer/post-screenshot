@@ -147,6 +147,8 @@ export function createKeyInput(input_class, label, default_label, common_value, 
             }
 
             input.dispatchEvent(new Event('change'));
+
+            input.blur();
         } else {
             input.value = prev_value;
         }
