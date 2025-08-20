@@ -82,8 +82,12 @@ input.toggle:checked+label.switch:after {
 input.rate {
     margin: 8px;
     padding: 8px;
-    width: 180px;
+    width: 200px;
     text-align: center;
+}
+
+input.rate:focus {
+    background-color: coral;
 }
 
 div#reset_container {
