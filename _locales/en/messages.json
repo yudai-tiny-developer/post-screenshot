@@ -33,7 +33,7 @@
         "message": "Seek and then take a screenshot"
     },
     "shortcut_recording": {
-        "message": "Start/Stop recording video<br>(experimental)"
+        "message": "Start/Stop recording video (experimental)"
     },
     "appDesc": {
         "message": "Supports posting video screenshots to X"
