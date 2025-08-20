@@ -37,10 +37,8 @@ export function createToggle(cell_class, toggle_class, label_class, key, checked
 
 export function createKeyInput(input_class, label, default_label, common_value, onChange) {
     const input = document.createElement('input');
-    input.setAttribute('type', 'text');
+    input.setAttribute('type', 'button');
     input.setAttribute('defaultValue', default_label);
-    input.setAttribute('inputmode', 'none');
-    input.setAttribute('autocomplete', 'off');
     input.classList.add(input_class);
 
     if (label) {
@@ -105,7 +103,6 @@ export function createKeyInput(input_class, label, default_label, common_value, 
     input.addEventListener('focus', () => {
         listening = true;
         input.value = '';
-        input.setAttribute('lang', 'en');
     });
 
     input.addEventListener('blur', () => {
@@ -147,23 +144,11 @@ export function createKeyInput(input_class, label, default_label, common_value, 
             }
 
             input.dispatchEvent(new Event('change'));
-
-            input.blur();
         } else {
             input.value = prev_value;
         }
-    });
 
-    input.addEventListener('compositionstart', e => {
-        e.preventDefault();
         input.blur();
-        input.focus();
-    });
-
-    input.addEventListener('change', (e) => {
-        if (!/^[\x20-\x7E]*$/.test(input.value)) {
-            input.value = prev_value;
-        }
     });
 
     return input;
