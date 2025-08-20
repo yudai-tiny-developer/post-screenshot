@@ -9,6 +9,7 @@ function main(common) {
             settings_popup = common.value(data.popup, common.default_popup);
             settings_hashtags = common.value(data.hashtags, common.default_hashtags);
             settings_hq = common.value(data.hq, common.default_hq);
+            settings_hq_recording = common.value(data.hq_recording, common.default_hq_recording);
             settings_download = common.value(data.download, common.default_download);
             settings_seek = common.value(data.seek, common.default_seek);
             settings_shortcut = common.parse_key(common.value(data.shortcut, common.default_shortcut));
@@ -223,7 +224,7 @@ function main(common) {
             canvas.height = video.videoHeight;
 
             const context = canvas.getContext('2d');
-            const canvasStream = canvas.captureStream(settings_hq ? 60 : 30);
+            const canvasStream = canvas.captureStream(settings_hq_recording ? 60 : 30);
 
             audioCtx = audioCtx ?? new AudioContext();
             source = source ?? audioCtx.createMediaElementSource(video);
@@ -239,8 +240,8 @@ function main(common) {
 
             const recorder = new MediaRecorder(combinedStream, {
                 mimeType: `${type};codecs=avc1,mp4a.40.2`,
-                videoBitsPerSecond: settings_hq ? 7680000 : 5120000,
-                audioBitsPerSecond: settings_hq ? 192000 : 128000,
+                videoBitsPerSecond: settings_hq_recording ? 7680000 : 5120000,
+                audioBitsPerSecond: settings_hq_recording ? 192000 : 128000,
             });
             const chunks = [];
 
@@ -308,7 +309,6 @@ function main(common) {
                     close_recording_dialog();
                 }
             });
-            recording_dialog.addEventListener('keydown', dialog_seek);
             recording_dialog.style.backgroundColor = 'black';
             recording_dialog.style.color = 'red';
             recording_dialog.style.fontSize = '14px';
@@ -320,7 +320,7 @@ function main(common) {
             div.style.textAlign = 'center';
             div.style.paddingLeft = '4px';
             div.style.paddingRight = '4px';
-            div.textContent = 'REC';
+            div.textContent = '●REC';
 
             recording_dialog.appendChild(div);
 
@@ -375,6 +375,7 @@ function main(common) {
     let settings_post = common.default_post;
     let settings_hashtags = common.default_hashtags;
     let settings_hq = common.default_hq;
+    let settings_hq_recording = common.default_hq_recording;
     let settings_download = common.default_download;
     let settings_seek = common.default_seek;
     let settings_shortcut = common.default_shortcut;
