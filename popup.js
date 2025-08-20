@@ -43,8 +43,14 @@ function main(common, settings, progress, data) {
         container.appendChild(row);
     } {
         const row = settings.createRow(row_class);
-        row.appendChild(settings.createLabel(cell_class, 'Post a high-quality screenshot'));
+        row.appendChild(settings.createLabel(cell_class, 'High-quality screenshot (high load)'));
         row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'hq', data.hq, common.default_hq, common.value));
+        row.appendChild(settings.createLabel(cell_class, ''));
+        container.appendChild(row);
+    } {
+        const row = settings.createRow(row_class);
+        row.appendChild(settings.createLabel(cell_class, 'High-quality recording (high load)'));
+        row.appendChild(settings.createToggle(cell_class, toggle_class, label_class, 'hq_recording', data.hq_recording, common.default_hq_recording, common.value));
         row.appendChild(settings.createLabel(cell_class, ''));
         container.appendChild(row);
     } {

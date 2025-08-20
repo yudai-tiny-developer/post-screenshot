@@ -3,6 +3,7 @@ export const storage = [
     'popup',
     'hashtags',
     'hq',
+    'hq_recording',
     'download',
     'seek',
     'shortcut',
@@ -14,6 +15,7 @@ export const default_post = true;
 export const default_popup = false;
 export const default_hashtags = true;
 export const default_hq = false;
+export const default_hq_recording = false;
 export const default_download = false;
 export const default_seek = false;
 export const default_shortcut = '';
