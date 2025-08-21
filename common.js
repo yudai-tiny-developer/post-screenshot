@@ -51,52 +51,37 @@ export function create_blob(base64image, type) {
     return new Blob([new Uint8Array(byteNumbers)], { type });
 }
 
-export function parse_key(comboStr) {
-    function normalizeKey(k) {
-        const map = {
-            'Space': ' ',
-            'ArrowUp': 'ArrowUp',
-            'ArrowDown': 'ArrowDown',
-            'ArrowLeft': 'ArrowLeft',
-            'ArrowRight': 'ArrowRight',
-            'Esc': 'Escape',
-        };
-        if (map[k]) return map[k];
-        if (k.length === 1) return k.toLowerCase();
-        return k;
-    }
+export function normalizeCombo({ ctrl, alt, shift, meta, key, code }) {
+    const parts = [];
+    if (ctrl) parts.push('Ctrl');
+    if (alt) parts.push('Alt');
+    if (shift) parts.push('Shift');
+    if (meta) parts.push(isMac() ? '⌘' : 'Meta');
 
-    function guessCodeFromKey(k) {
-        if (/^[A-Z]$/.test(k)) return 'Key' + k;
-        if (/^\d$/.test(k)) return 'Digit' + k;
-        if (k === ' ') return 'Space';
-        if (/^F\d{1,2}$/.test(k)) return k;
-        if (k.startsWith('Arrow')) return k;
-        return '';
-    }
+    const keyName = normalizeKeyName(key, code);
+    parts.push(keyName);
+    return parts.join(' + ');
+}
 
-    const parts = comboStr.split('+').map(s => s.trim());
+function normalizeKeyName(key, code) {
+    const mods = ['Control', 'Shift', 'Alt', 'Meta'];
+    if (!key || mods.includes(key)) return '';
 
-    let ctrl = false, shift = false, alt = false, meta = false;
-    let key = '', code = '';
-
-    for (const part of parts) {
-        if (/^Ctrl$/i.test(part)) ctrl = true;
-        else if (/^Shift$/i.test(part)) shift = true;
-        else if (/^Alt$/i.test(part)) alt = true;
-        else if (/^(Meta|⌘)$/i.test(part)) meta = true;
-        else {
-            key = normalizeKey(part);
-            code = guessCodeFromKey(key);
-        }
-    }
-
-    return {
-        key,
-        code,
-        ctrlKey: ctrl,
-        shiftKey: shift,
-        altKey: alt,
-        metaKey: meta
+    const map = {
+        ' ': 'Space',
+        'Spacebar': 'Space',
+        'ArrowUp': '↑',
+        'ArrowDown': '↓',
+        'ArrowLeft': '←',
+        'ArrowRight': '→',
+        'Esc': 'Escape',
     };
+
+    if (code && code.startsWith('Numpad')) return code;
+
+    if (key.length === 1 && key !== ' ') return key.toUpperCase();
+
+    if (/^F\d{1,2}$/.test(key)) return key;
+
+    return map[key] || key;
 }
