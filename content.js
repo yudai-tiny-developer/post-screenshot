@@ -12,9 +12,9 @@ function main(common) {
             settings_hq_recording = common.value(data.hq_recording, common.default_hq_recording);
             settings_download = common.value(data.download, common.default_download);
             settings_seek = common.value(data.seek, common.default_seek);
-            settings_shortcut = common.parse_key(common.value(data.shortcut, common.default_shortcut));
-            settings_shortcut_seek = common.parse_key(common.value(data.shortcut_seek, common.default_shortcut_seek));
-            settings_shortcut_recording = common.parse_key(common.value(data.shortcut_recording, common.default_shortcut_recording));
+            settings_shortcut = common.value(data.shortcut, common.default_shortcut);
+            settings_shortcut_seek = common.value(data.shortcut_seek, common.default_shortcut_seek);
+            settings_shortcut_recording = common.value(data.shortcut_recording, common.default_shortcut_recording);
         });
     }
 
@@ -398,7 +398,7 @@ function main(common) {
 
     document.addEventListener('_post_screenshot_take_screenshot', e => shortcut_command(e, 0));
 
-    document.addEventListener('keydown', e => {
+    document.addEventListener('keyup', e => {
         switch (e.target?.type) {
             case 'textarea':
             case 'date':
@@ -424,30 +424,22 @@ function main(common) {
             return;
         }
 
-        const numpad = e.code.startsWith('Numpad');
+        const combo = {
+            ctrl: e.ctrlKey,
+            alt: e.altKey,
+            shift: e.shiftKey,
+            meta: e.metaKey,
+            key: e.key,
+            code: e.code
+        };
 
-        if (e.key === settings_shortcut.key &&
-            ((!numpad && !settings_shortcut.code) || e.code === settings_shortcut.code) &&
-            e.ctrlKey === settings_shortcut.ctrlKey &&
-            e.shiftKey === settings_shortcut.shiftKey &&
-            e.altKey === settings_shortcut.altKey &&
-            e.metaKey === settings_shortcut.metaKey) {
+        const comboKey = common.normalizeCombo(combo);
+
+        if (comboKey === settings_shortcut) {
             shortcut_command(e, 1);
-        } else if (
-            e.key === settings_shortcut_seek.key &&
-            ((!numpad && !settings_shortcut_seek.code) || e.code === settings_shortcut_seek.code) &&
-            e.ctrlKey === settings_shortcut_seek.ctrlKey &&
-            e.shiftKey === settings_shortcut_seek.shiftKey &&
-            e.altKey === settings_shortcut_seek.altKey &&
-            e.metaKey === settings_shortcut_seek.metaKey) {
+        } else if (comboKey === settings_shortcut_seek) {
             shortcut_command(e, 2);
-        } else if (
-            e.key === settings_shortcut_recording.key &&
-            ((!numpad && !settings_shortcut_recording.code) || e.code === settings_shortcut_recording.code) &&
-            e.ctrlKey === settings_shortcut_recording.ctrlKey &&
-            e.shiftKey === settings_shortcut_recording.shiftKey &&
-            e.altKey === settings_shortcut_recording.altKey &&
-            e.metaKey === settings_shortcut_recording.metaKey) {
+        } else if (comboKey === settings_shortcut_recording) {
             shortcut_command(e, 3);
         }
     });

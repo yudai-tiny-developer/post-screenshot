@@ -51,58 +51,37 @@ export function create_blob(base64image, type) {
     return new Blob([new Uint8Array(byteNumbers)], { type });
 }
 
-export function parse_key(comboStr) {
-    function normalizeKey(part) {
-        if (part.startsWith('Numpad')) {
-            return part.replace(/^Numpad/, '').replace('Add', '+')
-                .replace('Subtract', '-')
-                .replace('Multiply', '*')
-                .replace('Divide', '/')
-                .replace('Decimal', '.');
-        }
+export function normalizeCombo({ ctrl, alt, shift, meta, key, code }) {
+    const parts = [];
+    if (ctrl) parts.push('Ctrl');
+    if (alt) parts.push('Alt');
+    if (shift) parts.push('Shift');
+    if (meta) parts.push(isMac() ? '⌘' : 'Meta');
 
-        const map = {
-            'Space': ' ',
-            '↑': 'ArrowUp',
-            '↓': 'ArrowDown',
-            '←': 'ArrowLeft',
-            '→': 'ArrowRight',
-            'Esc': 'Escape',
-        };
-        if (map[part]) return map[part];
-        if (part.length === 1) return part.toLowerCase();
-        return part;
-    }
+    const keyName = normalizeKeyName(key, code);
+    parts.push(keyName);
+    return parts.join(' + ');
+}
 
-    function guessCodeFromKey(part) {
-        if (part.startsWith('Numpad')) {
-            return part;
-        }
-        return '';
-    }
+function normalizeKeyName(key, code) {
+    const mods = ['Control', 'Shift', 'Alt', 'Meta'];
+    if (!key || mods.includes(key)) return '';
 
-    const parts = comboStr.split('+').map(s => s.trim());
-
-    let ctrl = false, shift = false, alt = false, meta = false;
-    let key = '', code = '';
-
-    for (const part of parts) {
-        if (/^Ctrl$/i.test(part)) ctrl = true;
-        else if (/^Shift$/i.test(part)) shift = true;
-        else if (/^Alt$/i.test(part)) alt = true;
-        else if (/^(Meta|⌘)$/i.test(part)) meta = true;
-        else {
-            key = normalizeKey(part);
-            code = guessCodeFromKey(part);
-        }
-    }
-
-    return {
-        key,
-        code,
-        ctrlKey: ctrl,
-        shiftKey: shift,
-        altKey: alt,
-        metaKey: meta
+    const map = {
+        ' ': 'Space',
+        'Spacebar': 'Space',
+        'ArrowUp': '↑',
+        'ArrowDown': '↓',
+        'ArrowLeft': '←',
+        'ArrowRight': '→',
+        'Esc': 'Escape',
     };
+
+    if (code && code.startsWith('Numpad')) return code;
+
+    if (key.length === 1 && key !== ' ') return key.toUpperCase();
+
+    if (/^F\d{1,2}$/.test(key)) return key;
+
+    return map[key] || key;
 }
