@@ -424,8 +424,10 @@ function main(common) {
             return;
         }
 
+        const numpad = e.code.startsWith('Numpad');
+
         if (e.key === settings_shortcut.key &&
-            (!settings_shortcut.code || e.code === settings_shortcut.code) &&
+            ((!numpad && !settings_shortcut.code) || e.code === settings_shortcut.code) &&
             e.ctrlKey === settings_shortcut.ctrlKey &&
             e.shiftKey === settings_shortcut.shiftKey &&
             e.altKey === settings_shortcut.altKey &&
@@ -433,7 +435,7 @@ function main(common) {
             shortcut_command(e, 1);
         } else if (
             e.key === settings_shortcut_seek.key &&
-            (!settings_shortcut_seek.code || e.code === settings_shortcut_seek.code) &&
+            ((!numpad && !settings_shortcut_seek.code) || e.code === settings_shortcut_seek.code) &&
             e.ctrlKey === settings_shortcut_seek.ctrlKey &&
             e.shiftKey === settings_shortcut_seek.shiftKey &&
             e.altKey === settings_shortcut_seek.altKey &&
@@ -441,7 +443,7 @@ function main(common) {
             shortcut_command(e, 2);
         } else if (
             e.key === settings_shortcut_recording.key &&
-            (!settings_shortcut_recording.code || e.code === settings_shortcut_recording.code) &&
+            ((!numpad && !settings_shortcut_recording.code) || e.code === settings_shortcut_recording.code) &&
             e.ctrlKey === settings_shortcut_recording.ctrlKey &&
             e.shiftKey === settings_shortcut_recording.shiftKey &&
             e.altKey === settings_shortcut_recording.altKey &&
