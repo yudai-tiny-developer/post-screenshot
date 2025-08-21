@@ -425,18 +425,23 @@ function main(common) {
         }
 
         if (e.key === settings_shortcut.key &&
+            (!settings_shortcut.code || e.code === settings_shortcut.code) &&
             e.ctrlKey === settings_shortcut.ctrlKey &&
             e.shiftKey === settings_shortcut.shiftKey &&
             e.altKey === settings_shortcut.altKey &&
             e.metaKey === settings_shortcut.metaKey) {
             shortcut_command(e, 1);
-        } else if (e.key === settings_shortcut_seek.key &&
+        } else if (
+            e.key === settings_shortcut_seek.key &&
+            (!settings_shortcut_seek.code || e.code === settings_shortcut_seek.code) &&
             e.ctrlKey === settings_shortcut_seek.ctrlKey &&
             e.shiftKey === settings_shortcut_seek.shiftKey &&
             e.altKey === settings_shortcut_seek.altKey &&
             e.metaKey === settings_shortcut_seek.metaKey) {
             shortcut_command(e, 2);
-        } else if (e.key === settings_shortcut_recording.key &&
+        } else if (
+            e.key === settings_shortcut_recording.key &&
+            (!settings_shortcut_recording.code || e.code === settings_shortcut_recording.code) &&
             e.ctrlKey === settings_shortcut_recording.ctrlKey &&
             e.shiftKey === settings_shortcut_recording.shiftKey &&
             e.altKey === settings_shortcut_recording.altKey &&

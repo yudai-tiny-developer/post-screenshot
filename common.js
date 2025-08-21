@@ -52,26 +52,32 @@ export function create_blob(base64image, type) {
 }
 
 export function parse_key(comboStr) {
-    function normalizeKey(k) {
+    function normalizeKey(part) {
+        if (part.startsWith('Numpad')) {
+            return part.replace(/^Numpad/, '').replace('Add', '+')
+                .replace('Subtract', '-')
+                .replace('Multiply', '*')
+                .replace('Divide', '/')
+                .replace('Decimal', '.');
+        }
+
         const map = {
             'Space': ' ',
-            'ArrowUp': 'ArrowUp',
-            'ArrowDown': 'ArrowDown',
-            'ArrowLeft': 'ArrowLeft',
-            'ArrowRight': 'ArrowRight',
+            '↑': 'ArrowUp',
+            '↓': 'ArrowDown',
+            '←': 'ArrowLeft',
+            '→': 'ArrowRight',
             'Esc': 'Escape',
         };
-        if (map[k]) return map[k];
-        if (k.length === 1) return k.toLowerCase();
-        return k;
+        if (map[part]) return map[part];
+        if (part.length === 1) return part.toLowerCase();
+        return part;
     }
 
-    function guessCodeFromKey(k) {
-        if (/^[A-Z]$/.test(k)) return 'Key' + k;
-        if (/^\d$/.test(k)) return 'Digit' + k;
-        if (k === ' ') return 'Space';
-        if (/^F\d{1,2}$/.test(k)) return k;
-        if (k.startsWith('Arrow')) return k;
+    function guessCodeFromKey(part) {
+        if (part.startsWith('Numpad')) {
+            return part;
+        }
         return '';
     }
 
@@ -87,7 +93,7 @@ export function parse_key(comboStr) {
         else if (/^(Meta|⌘)$/i.test(part)) meta = true;
         else {
             key = normalizeKey(part);
-            code = guessCodeFromKey(key);
+            code = guessCodeFromKey(part);
         }
     }
 

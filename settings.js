@@ -59,7 +59,7 @@ export function createKeyInput(input_class, label, default_label, common_value, 
         if (meta) parts.push(isMac() ? '⌘' : 'Meta');
 
         const keyName = normalizeKeyName(key, code);
-        if (keyName) parts.push(keyName);
+        parts.push(keyName);
         return parts.join(' + ');
     }
 
@@ -70,25 +70,18 @@ export function createKeyInput(input_class, label, default_label, common_value, 
         const map = {
             ' ': 'Space',
             'Spacebar': 'Space',
-            'ArrowUp': 'ArrowUp',
-            'ArrowDown': 'ArrowDown',
-            'ArrowLeft': 'ArrowLeft',
-            'ArrowRight': 'ArrowRight',
+            'ArrowUp': '↑',
+            'ArrowDown': '↓',
+            'ArrowLeft': '←',
+            'ArrowRight': '→',
             'Esc': 'Escape',
         };
+
+        if (code && code.startsWith('Numpad')) return code;
 
         if (key.length === 1 && key !== ' ') return key.toUpperCase();
 
         if (/^F\d{1,2}$/.test(key)) return key;
-
-        if (code && code.startsWith('Numpad')) {
-            const np = code.replace(/^Numpad/, '');
-            return 'Numpad ' + np.replace('Add', '+')
-                .replace('Subtract', '-')
-                .replace('Multiply', '*')
-                .replace('Divide', '/')
-                .replace('Decimal', '.');
-        }
 
         return map[key] || key;
     }
@@ -98,21 +91,23 @@ export function createKeyInput(input_class, label, default_label, common_value, 
     }
 
     let listening = false;
+    let result = false;
     let prev_value = input.value;
 
     input.addEventListener('focus', () => {
         listening = true;
+        result = false;
         input.value = '';
     });
 
     input.addEventListener('blur', () => {
         listening = false;
-        if (input.value === '') {
+        if (!result) {
             input.value = prev_value;
         }
     });
 
-    input.addEventListener('keydown', (e) => {
+    function keychange(e) {
         if (!listening) return;
 
         e.preventDefault();
@@ -129,13 +124,13 @@ export function createKeyInput(input_class, label, default_label, common_value, 
             code: e.code
         };
 
-        if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) {
-            return;
-        }
-
         const label = normalizeCombo(combo);
 
-        if (label !== 'Process') {
+        if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) {
+            result = false;
+            input.value = label;
+        } else {
+            result = true;
             input.value = label;
             prev_value = label;
 
@@ -144,12 +139,12 @@ export function createKeyInput(input_class, label, default_label, common_value, 
             }
 
             input.dispatchEvent(new Event('change'));
-        } else {
-            input.value = prev_value;
+            input.blur();
         }
+    }
 
-        input.blur();
-    });
+    input.addEventListener('keydown', keychange);
+    input.addEventListener('keyup', keychange);
 
     return input;
 }
