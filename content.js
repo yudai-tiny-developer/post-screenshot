@@ -173,10 +173,11 @@ function main(common) {
                 cellKeyButton.style.outline = 'none';
                 cellKeyButton.style.width = '100%';
                 cellKeyButton.value = item.key;
-                cellKeyButton.addEventListener('click', item.callback);
                 if (item.repeat) {
-                    cellKeyButton.addEventListener('mousedown', () => { clearInterval(push_interval); push_interval = setInterval(item.callback, 100); });
+                    cellKeyButton.addEventListener('mousedown', () => { clearInterval(push_interval); push_interval = setInterval(item.callback, 100); item.callback(); });
                     cellKeyButton.addEventListener('mouseup', () => { clearInterval(push_interval); });
+                } else {
+                    cellKeyButton.addEventListener('click', item.callback);
                 }
                 cellKey.appendChild(cellKeyButton);
 
