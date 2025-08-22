@@ -450,12 +450,14 @@ function main(common) {
         }
 
         const comboKey = common.normalizeCombo(e);
-        if (comboKey === settings_shortcut) {
-            shortcut_command(e, 1);
-        } else if (comboKey === settings_shortcut_seek) {
-            shortcut_command(e, 2);
-        } else if (comboKey === settings_shortcut_recording) {
-            shortcut_command(e, 3);
+        if (comboKey) {
+            if (comboKey === settings_shortcut) {
+                shortcut_command(e, 1);
+            } else if (comboKey === settings_shortcut_seek) {
+                shortcut_command(e, 2);
+            } else if (comboKey === settings_shortcut_recording) {
+                shortcut_command(e, 3);
+            }
         }
     });
 }
