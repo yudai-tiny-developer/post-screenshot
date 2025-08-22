@@ -35,7 +35,7 @@ export function createToggle(cell_class, toggle_class, label_class, key, checked
     return div;
 }
 
-export function createKeyInput(input_class, label, default_label, common_value, onChange, common) {
+export function createKeyInput(input_class, label, default_label, common_value, common) {
     const input = document.createElement('input');
     input.setAttribute('type', 'button');
     input.setAttribute('defaultValue', default_label);
@@ -97,10 +97,6 @@ export function createKeyInput(input_class, label, default_label, common_value, 
             prev_value = label;
             adjust_size();
 
-            if (onChange) {
-                onChange(input);
-            }
-
             input.dispatchEvent(new CustomEvent('change'));
             input.blur();
         }
@@ -144,23 +140,20 @@ export function createKeyInput(input_class, label, default_label, common_value, 
     return input;
 }
 
-export function createClearButton(input, default_label, onChange) {
+export function createClearButton(input, default_label) {
     const span = document.createElement('span');
     span.classList.add('filter-clear');
     span.innerHTML = '×';
 
-    if (onChange) {
-        span.addEventListener('click', () => {
-            input.dispatchEvent(new CustomEvent('reset'));
-            onChange(input);
+    span.addEventListener('click', () => {
+        input.dispatchEvent(new CustomEvent('reset'));
 
-            if (input.value === default_label) {
-                span.style.visibility = 'hidden';
-            } else {
-                span.style.visibility = 'visible';
-            }
-        });
-    }
+        if (input.value === default_label) {
+            span.style.visibility = 'hidden';
+        } else {
+            span.style.visibility = 'visible';
+        }
+    });
 
     input.addEventListener('change', () => {
         if (input.value === default_label) {
