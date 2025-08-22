@@ -82,7 +82,8 @@ input.toggle:checked+label.switch:after {
 input.rate {
     margin: 8px;
     padding: 8px;
-    width: 200px;
+    width: 140px;
+    height: 36px;
     text-align: center;
 }
 

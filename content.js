@@ -117,7 +117,11 @@ function main(common) {
             e.preventDefault();
             e.stopPropagation();
             dialog_fast_forward();
-        } else if (e.key === 'Enter') {
+        }
+    }
+
+    function dialog_seek_close(e) {
+        if (e.key === 'Enter') {
             e.preventDefault();
             e.stopPropagation();
             dialog_take_screenshot();
@@ -138,6 +142,7 @@ function main(common) {
                 }
             });
             dialog.addEventListener('keydown', dialog_seek);
+            dialog.addEventListener('keyup', dialog_seek_close);
             dialog.style.backgroundColor = 'black';
             dialog.style.color = 'white';
             dialog.style.fontSize = '14px';
@@ -145,12 +150,12 @@ function main(common) {
             dialog.style.outline = 'none';
 
             const keyActions = [
-                { key: '←', action: 'Step back', callback: dialog_step_back },
-                { key: '→', action: 'Step forward', callback: dialog_step_forward },
-                { key: '↑', action: 'Rewind 1 second', callback: dialog_rewind },
-                { key: '↓', action: 'Fast forward 1 second', callback: dialog_fast_forward },
-                { key: 'Enter', action: 'Take a screenshot', callback: dialog_take_screenshot },
-                { key: 'Escape', action: 'Cancel', callback: dialog_close },
+                { key: '←', action: 'Step back', callback: dialog_step_back, repeat: true },
+                { key: '→', action: 'Step forward', callback: dialog_step_forward, repeat: true },
+                { key: '↑', action: 'Rewind 1 second', callback: dialog_rewind, repeat: true },
+                { key: '↓', action: 'Fast forward 1 second', callback: dialog_fast_forward, repeat: true },
+                { key: 'Enter', action: 'Take a screenshot', callback: dialog_take_screenshot, repeat: false },
+                { key: 'Escape', action: 'Cancel', callback: dialog_close, repeat: false },
             ];
 
             const tableDiv = document.createElement('div');
@@ -166,10 +171,14 @@ function main(common) {
                 const cellKeyButton = document.createElement('input');
                 cellKeyButton.type = 'button';
                 cellKeyButton.style.outline = 'none';
+                cellKeyButton.style.width = '100%';
                 cellKeyButton.value = item.key;
-                cellKeyButton.addEventListener('click', item.callback);
-                cellKeyButton.addEventListener('mousedown', () => { clearInterval(push_interval); push_interval = setInterval(item.callback, 100); });
-                cellKeyButton.addEventListener('mouseup', () => { clearInterval(push_interval); });
+                if (item.repeat) {
+                    cellKeyButton.addEventListener('mousedown', () => { clearInterval(push_interval); push_interval = setInterval(item.callback, 100); item.callback(); });
+                    cellKeyButton.addEventListener('mouseup', () => { clearInterval(push_interval); });
+                } else {
+                    cellKeyButton.addEventListener('click', item.callback);
+                }
                 cellKey.appendChild(cellKeyButton);
 
                 const cellSeparator = document.createElement('div');
@@ -213,6 +222,7 @@ function main(common) {
 
     function record() {
         if (recording) {
+            recording_result = true;
             close_recording_dialog();
         } else {
             show_recording_dialog();
@@ -240,7 +250,7 @@ function main(common) {
 
             const recorder = new MediaRecorder(combinedStream, {
                 mimeType: `${type};codecs=avc1,mp4a.40.2`,
-                videoBitsPerSecond: settings_hq_recording ? 7680000 : 5120000,
+                videoBitsPerSecond: settings_hq_recording ? 10240000 : 5120000,
                 audioBitsPerSecond: settings_hq_recording ? 192000 : 128000,
             });
             const chunks = [];
@@ -248,12 +258,10 @@ function main(common) {
             recorder.ondataavailable = (e) => chunks.push(e.data);
 
             recorder.onstop = async () => {
-                const blob = new Blob(chunks, { type });
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    if (recording_result) {
-                        recording_result = false;
-
+                if (recording_result) {
+                    const blob = new Blob(chunks, { type });
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
                         if (settings_post) {
                             const base64image = reader.result.replace(/^data:[^,]*,/, '');
                             const title = `${sanitize(document.title)}_${now()}.mp4`;
@@ -275,9 +283,9 @@ function main(common) {
                             document.body.removeChild(a);
                             URL.revokeObjectURL(a.href);
                         }
-                    }
-                };
-                reader.readAsDataURL(blob);
+                    };
+                    reader.readAsDataURL(blob);
+                }
             };
 
             video.play();
@@ -288,6 +296,9 @@ function main(common) {
                     requestAnimationFrame(draw);
                 } else {
                     recorder.stop();
+
+                    recording_result = true;
+                    close_recording_dialog();
                 }
             }
             draw();
@@ -296,7 +307,6 @@ function main(common) {
 
     function show_recording_dialog() {
         recording = true;
-        recording_result = true;
 
         if (!recording_dialog) {
             recording_dialog = document.createElement('dialog');
@@ -314,7 +324,26 @@ function main(common) {
             recording_dialog.style.fontSize = '14px';
             recording_dialog.style.margin = 0;
             recording_dialog.style.outline = 'none';
-            recording_dialog.title = 'Press the shortcut key again: Stop recording\nUnfocus: Cancel recording';
+            recording_dialog.title = 'Press Enter or the shortcut key again: Stop recording\nPress Escape or lose focus: Cancel recording';
+            recording_dialog.addEventListener('keyup', (e) => {
+                if (!recording_dialog.contains(e.relatedTarget)) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        recording_result = true;
+                        close_recording_dialog();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        if (recording) {
+                            recording_result = false;
+                        }
+                        close_recording_dialog();
+                    }
+                }
+            });
 
             const div = document.createElement('div');
             div.style.textAlign = 'center';
@@ -416,25 +445,11 @@ function main(common) {
                 return;
         }
 
-        if (e.target?.isContentEditable) {
+        if (e.target?.isContentEditable || e.target?.getAttribute('role') === 'textbox') {
             return;
         }
 
-        if (e.target?.getAttribute('role') === 'textbox') {
-            return;
-        }
-
-        const combo = {
-            ctrl: e.ctrlKey,
-            alt: e.altKey,
-            shift: e.shiftKey,
-            meta: e.metaKey,
-            key: e.key,
-            code: e.code
-        };
-
-        const comboKey = common.normalizeCombo(combo);
-
+        const comboKey = common.normalizeCombo(e);
         if (comboKey === settings_shortcut) {
             shortcut_command(e, 1);
         } else if (comboKey === settings_shortcut_seek) {

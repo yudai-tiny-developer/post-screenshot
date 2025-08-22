@@ -35,7 +35,7 @@ export function createToggle(cell_class, toggle_class, label_class, key, checked
     return div;
 }
 
-export function createKeyInput(input_class, label, default_label, common_value, onChange) {
+export function createKeyInput(input_class, label, default_label, common_value, common) {
     const input = document.createElement('input');
     input.setAttribute('type', 'button');
     input.setAttribute('defaultValue', default_label);
@@ -47,48 +47,16 @@ export function createKeyInput(input_class, label, default_label, common_value, 
         input.value = default_label;
     }
 
+    const dummy = document.createElement('span');
+    dummy.style.visibility = 'hidden';
+    dummy.style.position = 'absolute';
+    dummy.style.whiteSpace = 'pre';
+    document.body.appendChild(dummy);
+
     input.addEventListener('reset', () => {
         input.value = default_label;
+        adjust_size();
     });
-
-    function normalizeCombo({ ctrl, alt, shift, meta, key, code }) {
-        const parts = [];
-        if (ctrl) parts.push('Ctrl');
-        if (alt) parts.push('Alt');
-        if (shift) parts.push('Shift');
-        if (meta) parts.push(isMac() ? '⌘' : 'Meta');
-
-        const keyName = normalizeKeyName(key, code);
-        parts.push(keyName);
-        return parts.join(' + ');
-    }
-
-    function normalizeKeyName(key, code) {
-        const mods = ['Control', 'Shift', 'Alt', 'Meta'];
-        if (!key || mods.includes(key)) return '';
-
-        const map = {
-            ' ': 'Space',
-            'Spacebar': 'Space',
-            'ArrowUp': '↑',
-            'ArrowDown': '↓',
-            'ArrowLeft': '←',
-            'ArrowRight': '→',
-            'Esc': 'Escape',
-        };
-
-        if (code && code.startsWith('Numpad')) return code;
-
-        if (key.length === 1 && key !== ' ') return key.toUpperCase();
-
-        if (/^F\d{1,2}$/.test(key)) return key;
-
-        return map[key] || key;
-    }
-
-    function isMac() {
-        return /Mac|iPhone|iPad|iPod/.test(navigator.platform) || /Mac OS|iOS/.test(navigator.userAgent);
-    }
 
     let listening = false;
     let result = false;
@@ -98,12 +66,14 @@ export function createKeyInput(input_class, label, default_label, common_value, 
         listening = true;
         result = false;
         input.value = '';
+        adjust_size();
     });
 
     input.addEventListener('blur', () => {
         listening = false;
         if (!result) {
             input.value = prev_value;
+            adjust_size();
         }
     });
 
@@ -115,57 +85,75 @@ export function createKeyInput(input_class, label, default_label, common_value, 
 
         if (e.repeat) return;
 
-        const combo = {
-            ctrl: e.ctrlKey,
-            alt: e.altKey,
-            shift: e.shiftKey,
-            meta: e.metaKey,
-            key: e.key,
-            code: e.code
-        };
+        const label = common.normalizeCombo(e);
 
-        const label = normalizeCombo(combo);
-
-        if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) {
+        if (['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) {
             result = false;
             input.value = label;
+            adjust_size();
         } else {
             result = true;
             input.value = label;
             prev_value = label;
+            adjust_size();
 
-            if (onChange) {
-                onChange(input);
-            }
-
-            input.dispatchEvent(new Event('change'));
+            input.dispatchEvent(new CustomEvent('change'));
             input.blur();
+        }
+    }
+
+    function adjust_size() {
+        const baseFontSize = 14;
+        const minFontSize = 5;
+        const input_style = getComputedStyle(input);
+        const padding = Number.parseInt(input_style.paddingLeft) + Number.parseInt(input_style.paddingRight);
+
+        let fontSize = baseFontSize;
+
+        input.style.fontSize = fontSize + 'px';
+        dummy.style.fontSize = fontSize + 'px';
+        dummy.style.font = input_style.font;
+        dummy.textContent = input.value || '';
+
+        while (dummy.offsetWidth > input.clientWidth - padding && fontSize > minFontSize) {
+            fontSize -= 0.5;
+            input.style.fontSize = fontSize + 'px';
+            dummy.style.fontSize = fontSize + 'px';
+        }
+
+        while (dummy.offsetWidth <= input.clientWidth - padding && fontSize < baseFontSize) {
+            fontSize += 0.5;
+            input.style.fontSize = fontSize + 'px';
+            dummy.style.fontSize = fontSize + 'px';
+            if (dummy.offsetWidth > input.clientWidth - padding) {
+                fontSize -= 0.5;
+                input.style.fontSize = fontSize + 'px';
+                break;
+            }
         }
     }
 
     input.addEventListener('keydown', keychange);
     input.addEventListener('keyup', keychange);
+    input.addEventListener('adjust', adjust_size);
 
     return input;
 }
 
-export function createClearButton(input, default_label, onChange) {
+export function createClearButton(input, default_label) {
     const span = document.createElement('span');
     span.classList.add('filter-clear');
     span.innerHTML = '×';
 
-    if (onChange) {
-        span.addEventListener('click', () => {
-            input.dispatchEvent(new Event('reset'));
-            onChange(input);
+    span.addEventListener('click', () => {
+        input.dispatchEvent(new CustomEvent('reset'));
 
-            if (input.value === default_label) {
-                span.style.visibility = 'hidden';
-            } else {
-                span.style.visibility = 'visible';
-            }
-        });
-    }
+        if (input.value === default_label) {
+            span.style.visibility = 'hidden';
+        } else {
+            span.style.visibility = 'visible';
+        }
+    });
 
     input.addEventListener('change', () => {
         if (input.value === default_label) {
@@ -214,7 +202,7 @@ function resetSettings(args) {
 
     for (const input of document.body.querySelectorAll('input.' + args.input_class)) {
         input.value = input.getAttribute('defaultValue');
-        input.dispatchEvent(new Event('change'));
+        input.dispatchEvent(new CustomEvent('change'));
     }
 
     chrome.storage.local.clear();
