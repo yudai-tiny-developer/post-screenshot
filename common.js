@@ -51,12 +51,12 @@ export function create_blob(base64image, type) {
     return new Blob([new Uint8Array(byteNumbers)], { type });
 }
 
-export function normalizeCombo({ ctrl, alt, shift, meta, key, code }) {
+export function normalizeCombo({ key, code, ctrlKey, altKey, shiftKey, metaKey }) {
     const parts = [];
-    if (ctrl) parts.push('Ctrl');
-    if (alt) parts.push('Alt');
-    if (shift) parts.push('Shift');
-    if (meta) parts.push(isWin() ? 'Win' : isMac() ? '⌘' : 'Meta');
+    if (ctrlKey) parts.push('Ctrl');
+    if (altKey) parts.push('Alt');
+    if (shiftKey) parts.push('Shift');
+    if (metaKey) parts.push(isWin() ? 'Win' : isMac() ? '⌘' : 'Meta');
 
     const keyName = normalizeKeyName(key, code);
     parts.push(keyName);
@@ -64,26 +64,22 @@ export function normalizeCombo({ ctrl, alt, shift, meta, key, code }) {
 }
 
 function normalizeKeyName(key, code) {
-    const mods = ['Control', 'Shift', 'Alt', 'Meta'];
-    if (!key || mods.includes(key)) return '';
+    if (!key || ['Control', 'Alt', 'Shift', 'Meta'].includes(key)) return '';
 
     const map = {
         ' ': 'Space',
-        'Spacebar': 'Space',
         'ArrowUp': '↑',
         'ArrowDown': '↓',
         'ArrowLeft': '←',
         'ArrowRight': '→',
-        'Esc': 'Escape',
     };
+    if (map[key]) return map[key];
 
     if (code && code.startsWith('Numpad')) return code;
 
-    if (key.length === 1 && key !== ' ') return key.toUpperCase();
+    if (key.length === 1) return key.toUpperCase();
 
-    if (/^F\d{1,2}$/.test(key)) return key;
-
-    return map[key] || key;
+    return key;
 }
 
 function isWin() {

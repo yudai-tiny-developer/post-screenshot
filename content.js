@@ -438,25 +438,11 @@ function main(common) {
                 return;
         }
 
-        if (e.target?.isContentEditable) {
+        if (e.target?.isContentEditable || e.target?.getAttribute('role') === 'textbox') {
             return;
         }
 
-        if (e.target?.getAttribute('role') === 'textbox') {
-            return;
-        }
-
-        const combo = {
-            ctrl: e.ctrlKey,
-            alt: e.altKey,
-            shift: e.shiftKey,
-            meta: e.metaKey,
-            key: e.key,
-            code: e.code
-        };
-
-        const comboKey = common.normalizeCombo(combo);
-
+        const comboKey = common.normalizeCombo(e);
         if (comboKey === settings_shortcut) {
             shortcut_command(e, 1);
         } else if (comboKey === settings_shortcut_seek) {

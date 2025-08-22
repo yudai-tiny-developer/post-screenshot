@@ -85,18 +85,9 @@ export function createKeyInput(input_class, label, default_label, common_value, 
 
         if (e.repeat) return;
 
-        const combo = {
-            ctrl: e.ctrlKey,
-            alt: e.altKey,
-            shift: e.shiftKey,
-            meta: e.metaKey,
-            key: e.key,
-            code: e.code
-        };
+        const label = common.normalizeCombo(e);
 
-        const label = common.normalizeCombo(combo);
-
-        if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) {
+        if (['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) {
             result = false;
             input.value = label;
             adjust_size();
