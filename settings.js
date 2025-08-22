@@ -153,7 +153,7 @@ export function createKeyInput(input_class, label, default_label, common_value, 
                 onChange(input);
             }
 
-            input.dispatchEvent(new Event('change'));
+            input.dispatchEvent(new CustomEvent('change'));
             input.blur();
         }
     }
@@ -203,7 +203,7 @@ export function createClearButton(input, default_label, onChange) {
 
     if (onChange) {
         span.addEventListener('click', () => {
-            input.dispatchEvent(new Event('reset'));
+            input.dispatchEvent(new CustomEvent('reset'));
             onChange(input);
 
             if (input.value === default_label) {
@@ -261,7 +261,7 @@ function resetSettings(args) {
 
     for (const input of document.body.querySelectorAll('input.' + args.input_class)) {
         input.value = input.getAttribute('defaultValue');
-        input.dispatchEvent(new Event('change'));
+        input.dispatchEvent(new CustomEvent('change'));
     }
 
     chrome.storage.local.clear();
