@@ -35,7 +35,7 @@ export function createToggle(cell_class, toggle_class, label_class, key, checked
     return div;
 }
 
-export function createKeyInput(input_class, label, default_label, common_value, onChange) {
+export function createKeyInput(input_class, label, default_label, common_value, onChange, common) {
     const input = document.createElement('input');
     input.setAttribute('type', 'button');
     input.setAttribute('defaultValue', default_label);
@@ -57,49 +57,6 @@ export function createKeyInput(input_class, label, default_label, common_value, 
         input.value = default_label;
         adjust_size();
     });
-
-    function normalizeCombo({ ctrl, alt, shift, meta, key, code }) {
-        const parts = [];
-        if (ctrl) parts.push('Ctrl');
-        if (alt) parts.push('Alt');
-        if (shift) parts.push('Shift');
-        if (meta) parts.push(isWin() ? 'Win' : isMac() ? '⌘' : 'Meta');
-
-        const keyName = normalizeKeyName(key, code);
-        parts.push(keyName);
-        return parts.join(' + ');
-    }
-
-    function normalizeKeyName(key, code) {
-        const mods = ['Control', 'Shift', 'Alt', 'Meta'];
-        if (!key || mods.includes(key)) return '';
-
-        const map = {
-            ' ': 'Space',
-            'Spacebar': 'Space',
-            'ArrowUp': '↑',
-            'ArrowDown': '↓',
-            'ArrowLeft': '←',
-            'ArrowRight': '→',
-            'Esc': 'Escape',
-        };
-
-        if (code && code.startsWith('Numpad')) return code;
-
-        if (key.length === 1 && key !== ' ') return key.toUpperCase();
-
-        if (/^F\d{1,2}$/.test(key)) return key;
-
-        return map[key] || key;
-    }
-
-    function isWin() {
-        return /Win/.test(navigator.platform) || /Win/.test(navigator.userAgent);
-    }
-
-    function isMac() {
-        return /Mac|iPhone|iPad|iPod/.test(navigator.platform) || /Mac OS|iOS/.test(navigator.userAgent);
-    }
 
     let listening = false;
     let result = false;
@@ -137,7 +94,7 @@ export function createKeyInput(input_class, label, default_label, common_value, 
             code: e.code
         };
 
-        const label = normalizeCombo(combo);
+        const label = common.normalizeCombo(combo);
 
         if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) {
             result = false;

@@ -106,7 +106,7 @@ function main(common, settings, progress, data) {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, common.label.shortcut));
         const onChange = input => chrome.storage.local.set({ shortcut: input.value });
-        const input = settings.createKeyInput(input_class, data.shortcut, common.default_shortcut, common.value, onChange);
+        const input = settings.createKeyInput(input_class, data.shortcut, common.default_shortcut, common.value, onChange, common);
         row.appendChild(input);
         row.appendChild(settings.createClearButton(input, common.default_shortcut, onChange));
         container.appendChild(row);
@@ -115,7 +115,7 @@ function main(common, settings, progress, data) {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, common.label.shortcut_seek));
         const onChange = input => chrome.storage.local.set({ shortcut_seek: input.value });
-        const input = settings.createKeyInput(input_class, data.shortcut_seek, common.default_shortcut_seek, common.value, onChange);
+        const input = settings.createKeyInput(input_class, data.shortcut_seek, common.default_shortcut_seek, common.value, onChange, common);
         row.appendChild(input);
         row.appendChild(settings.createClearButton(input, common.default_shortcut_seek, onChange));
         container.appendChild(row);
@@ -124,7 +124,7 @@ function main(common, settings, progress, data) {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, common.label.shortcut_recording));
         const onChange = input => chrome.storage.local.set({ shortcut_recording: input.value });
-        const input = settings.createKeyInput(input_class, data.shortcut_recording, common.default_shortcut_recording, common.value, onChange);
+        const input = settings.createKeyInput(input_class, data.shortcut_recording, common.default_shortcut_recording, common.value, onChange, common);
         row.appendChild(input);
         row.appendChild(settings.createClearButton(input, common.default_shortcut_recording, onChange));
         container.appendChild(row);
