@@ -254,10 +254,10 @@ function main(common) {
             recorder.ondataavailable = (e) => chunks.push(e.data);
 
             recorder.onstop = async () => {
-                const blob = new Blob(chunks, { type });
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    if (recording_result) {
+                if (recording_result) {
+                    const blob = new Blob(chunks, { type });
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
                         if (settings_post) {
                             const base64image = reader.result.replace(/^data:[^,]*,/, '');
                             const title = `${sanitize(document.title)}_${now()}.mp4`;
@@ -279,9 +279,9 @@ function main(common) {
                             document.body.removeChild(a);
                             URL.revokeObjectURL(a.href);
                         }
-                    }
-                };
-                reader.readAsDataURL(blob);
+                    };
+                    reader.readAsDataURL(blob);
+                }
             };
 
             video.play();
@@ -292,6 +292,9 @@ function main(common) {
                     requestAnimationFrame(draw);
                 } else {
                     recorder.stop();
+
+                    recording_result = true;
+                    close_recording_dialog();
                 }
             }
             draw();
