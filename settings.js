@@ -161,25 +161,27 @@ export function createKeyInput(input_class, label, default_label, common_value, 
     function adjust_size() {
         const baseFontSize = 14;
         const minFontSize = 5;
+        const input_style = getComputedStyle(input);
+        const padding = Number.parseInt(input_style.paddingLeft) + Number.parseInt(input_style.paddingRight);
 
         let fontSize = baseFontSize;
 
         input.style.fontSize = fontSize + 'px';
         dummy.style.fontSize = fontSize + 'px';
-        dummy.style.font = getComputedStyle(input).font;
+        dummy.style.font = input_style.font;
         dummy.textContent = input.value || '';
 
-        while (dummy.offsetWidth > input.clientWidth - 16 && fontSize > minFontSize) {
+        while (dummy.offsetWidth > input.clientWidth - padding && fontSize > minFontSize) {
             fontSize -= 0.5;
             input.style.fontSize = fontSize + 'px';
             dummy.style.fontSize = fontSize + 'px';
         }
 
-        while (dummy.offsetWidth <= input.clientWidth - 16 && fontSize < baseFontSize) {
+        while (dummy.offsetWidth <= input.clientWidth - padding && fontSize < baseFontSize) {
             fontSize += 0.5;
             input.style.fontSize = fontSize + 'px';
             dummy.style.fontSize = fontSize + 'px';
-            if (dummy.offsetWidth > input.clientWidth - 16) {
+            if (dummy.offsetWidth > input.clientWidth - padding) {
                 fontSize -= 0.5;
                 input.style.fontSize = fontSize + 'px';
                 break;
