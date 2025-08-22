@@ -173,7 +173,7 @@ function main(common) {
                 cellKeyButton.style.outline = 'none';
                 cellKeyButton.value = item.key;
                 cellKeyButton.addEventListener('click', item.callback);
-                cellKeyButton.addEventListener('mousedown', () => { clearInterval(push_interval); push_interval = setInterval(item.callback, 100); });
+                cellKeyButton.addEventListener('mousedown', () => { clearInterval(push_interval); push_interval = setInterval(item.callback, 50); });
                 cellKeyButton.addEventListener('mouseup', () => { clearInterval(push_interval); });
                 cellKey.appendChild(cellKeyButton);
 
