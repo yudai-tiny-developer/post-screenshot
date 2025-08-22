@@ -171,6 +171,7 @@ function main(common) {
                 const cellKeyButton = document.createElement('input');
                 cellKeyButton.type = 'button';
                 cellKeyButton.style.outline = 'none';
+                cellKeyButton.style.width = '100%';
                 cellKeyButton.value = item.key;
                 cellKeyButton.addEventListener('click', item.callback);
                 cellKeyButton.addEventListener('mousedown', () => { clearInterval(push_interval); push_interval = setInterval(item.callback, 50); });
