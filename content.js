@@ -117,7 +117,11 @@ function main(common) {
             e.preventDefault();
             e.stopPropagation();
             dialog_fast_forward();
-        } else if (e.key === 'Enter') {
+        }
+    }
+
+    function dialog_seek_close(e) {
+        if (e.key === 'Enter') {
             e.preventDefault();
             e.stopPropagation();
             dialog_take_screenshot();
@@ -138,6 +142,7 @@ function main(common) {
                 }
             });
             dialog.addEventListener('keydown', dialog_seek);
+            dialog.addEventListener('keyup', dialog_seek_close);
             dialog.style.backgroundColor = 'black';
             dialog.style.color = 'white';
             dialog.style.fontSize = '14px';
@@ -312,7 +317,26 @@ function main(common) {
             recording_dialog.style.fontSize = '14px';
             recording_dialog.style.margin = 0;
             recording_dialog.style.outline = 'none';
-            recording_dialog.title = 'Press the shortcut key again: Stop recording\nUnfocus: Cancel recording';
+            recording_dialog.title = 'Press Enter or the shortcut key again: Stop recording\nPress Escape or lose focus: Cancel recording';
+            recording_dialog.addEventListener('keyup', (e) => {
+                if (!recording_dialog.contains(e.relatedTarget)) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        recording_result = true;
+                        close_recording_dialog();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        if (recording) {
+                            recording_result = false;
+                        }
+                        close_recording_dialog();
+                    }
+                }
+            });
 
             const div = document.createElement('div');
             div.style.textAlign = 'center';
