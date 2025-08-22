@@ -47,8 +47,15 @@ export function createKeyInput(input_class, label, default_label, common_value, 
         input.value = default_label;
     }
 
+    const dummy = document.createElement('span');
+    dummy.style.visibility = 'hidden';
+    dummy.style.position = 'absolute';
+    dummy.style.whiteSpace = 'pre';
+    document.body.appendChild(dummy);
+
     input.addEventListener('reset', () => {
         input.value = default_label;
+        adjust_size();
     });
 
     function normalizeCombo({ ctrl, alt, shift, meta, key, code }) {
@@ -56,7 +63,7 @@ export function createKeyInput(input_class, label, default_label, common_value, 
         if (ctrl) parts.push('Ctrl');
         if (alt) parts.push('Alt');
         if (shift) parts.push('Shift');
-        if (meta) parts.push(isMac() ? '⌘' : 'Meta');
+        if (meta) parts.push(isWin() ? 'Win' : isMac() ? '⌘' : 'Meta');
 
         const keyName = normalizeKeyName(key, code);
         parts.push(keyName);
@@ -86,6 +93,10 @@ export function createKeyInput(input_class, label, default_label, common_value, 
         return map[key] || key;
     }
 
+    function isWin() {
+        return /Win/.test(navigator.platform) || /Win/.test(navigator.userAgent);
+    }
+
     function isMac() {
         return /Mac|iPhone|iPad|iPod/.test(navigator.platform) || /Mac OS|iOS/.test(navigator.userAgent);
     }
@@ -98,12 +109,14 @@ export function createKeyInput(input_class, label, default_label, common_value, 
         listening = true;
         result = false;
         input.value = '';
+        adjust_size();
     });
 
     input.addEventListener('blur', () => {
         listening = false;
         if (!result) {
             input.value = prev_value;
+            adjust_size();
         }
     });
 
@@ -129,10 +142,12 @@ export function createKeyInput(input_class, label, default_label, common_value, 
         if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) {
             result = false;
             input.value = label;
+            adjust_size();
         } else {
             result = true;
             input.value = label;
             prev_value = label;
+            adjust_size();
 
             if (onChange) {
                 onChange(input);
@@ -143,8 +158,38 @@ export function createKeyInput(input_class, label, default_label, common_value, 
         }
     }
 
+    function adjust_size() {
+        const baseFontSize = 14;
+        const minFontSize = 5;
+
+        let fontSize = baseFontSize;
+
+        input.style.fontSize = fontSize + 'px';
+        dummy.style.fontSize = fontSize + 'px';
+        dummy.style.font = getComputedStyle(input).font;
+        dummy.textContent = input.value || '';
+
+        while (dummy.offsetWidth > input.clientWidth - 16 && fontSize > minFontSize) {
+            fontSize -= 0.5;
+            input.style.fontSize = fontSize + 'px';
+            dummy.style.fontSize = fontSize + 'px';
+        }
+
+        while (dummy.offsetWidth <= input.clientWidth - 16 && fontSize < baseFontSize) {
+            fontSize += 0.5;
+            input.style.fontSize = fontSize + 'px';
+            dummy.style.fontSize = fontSize + 'px';
+            if (dummy.offsetWidth > input.clientWidth - 16) {
+                fontSize -= 0.5;
+                input.style.fontSize = fontSize + 'px';
+                break;
+            }
+        }
+    }
+
     input.addEventListener('keydown', keychange);
     input.addEventListener('keyup', keychange);
+    input.addEventListener('adjust', adjust_size);
 
     return input;
 }

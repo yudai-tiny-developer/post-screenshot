@@ -110,6 +110,7 @@ function main(common, settings, progress, data) {
         row.appendChild(input);
         row.appendChild(settings.createClearButton(input, common.default_shortcut, onChange));
         container.appendChild(row);
+        input.dispatchEvent(new Event('adjust'));
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, common.label.shortcut_seek));
@@ -118,6 +119,7 @@ function main(common, settings, progress, data) {
         row.appendChild(input);
         row.appendChild(settings.createClearButton(input, common.default_shortcut_seek, onChange));
         container.appendChild(row);
+        input.dispatchEvent(new Event('adjust'));
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, common.label.shortcut_recording));
@@ -126,6 +128,7 @@ function main(common, settings, progress, data) {
         row.appendChild(input);
         row.appendChild(settings.createClearButton(input, common.default_shortcut_recording, onChange));
         container.appendChild(row);
+        input.dispatchEvent(new Event('adjust'));
     }
 
     settings.registerResetButton(reset_button, progress_div, progress_class, done_class, toggle_class, input_class, progress);

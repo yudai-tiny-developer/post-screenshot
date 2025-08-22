@@ -56,7 +56,7 @@ export function normalizeCombo({ ctrl, alt, shift, meta, key, code }) {
     if (ctrl) parts.push('Ctrl');
     if (alt) parts.push('Alt');
     if (shift) parts.push('Shift');
-    if (meta) parts.push(isMac() ? '⌘' : 'Meta');
+    if (meta) parts.push(isWin() ? 'Win' : isMac() ? '⌘' : 'Meta');
 
     const keyName = normalizeKeyName(key, code);
     parts.push(keyName);
@@ -84,4 +84,12 @@ function normalizeKeyName(key, code) {
     if (/^F\d{1,2}$/.test(key)) return key;
 
     return map[key] || key;
+}
+
+function isWin() {
+    return /Win/.test(navigator.platform) || /Windows/.test(navigator.userAgent);
+}
+
+function isMac() {
+    return /Mac|iPhone|iPad|iPod/.test(navigator.platform) || /Mac OS|iOS/.test(navigator.userAgent);
 }

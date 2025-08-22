@@ -213,6 +213,7 @@ function main(common) {
 
     function record() {
         if (recording) {
+            recording_result = true;
             close_recording_dialog();
         } else {
             show_recording_dialog();
@@ -240,7 +241,7 @@ function main(common) {
 
             const recorder = new MediaRecorder(combinedStream, {
                 mimeType: `${type};codecs=avc1,mp4a.40.2`,
-                videoBitsPerSecond: settings_hq_recording ? 7680000 : 5120000,
+                videoBitsPerSecond: settings_hq_recording ? 10240000 : 5120000,
                 audioBitsPerSecond: settings_hq_recording ? 192000 : 128000,
             });
             const chunks = [];
@@ -252,8 +253,6 @@ function main(common) {
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     if (recording_result) {
-                        recording_result = false;
-
                         if (settings_post) {
                             const base64image = reader.result.replace(/^data:[^,]*,/, '');
                             const title = `${sanitize(document.title)}_${now()}.mp4`;
@@ -296,7 +295,6 @@ function main(common) {
 
     function show_recording_dialog() {
         recording = true;
-        recording_result = true;
 
         if (!recording_dialog) {
             recording_dialog = document.createElement('dialog');
