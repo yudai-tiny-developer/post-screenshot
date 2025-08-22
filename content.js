@@ -150,12 +150,12 @@ function main(common) {
             dialog.style.outline = 'none';
 
             const keyActions = [
-                { key: '←', action: 'Step back', callback: dialog_step_back },
-                { key: '→', action: 'Step forward', callback: dialog_step_forward },
-                { key: '↑', action: 'Rewind 1 second', callback: dialog_rewind },
-                { key: '↓', action: 'Fast forward 1 second', callback: dialog_fast_forward },
-                { key: 'Enter', action: 'Take a screenshot', callback: dialog_take_screenshot },
-                { key: 'Escape', action: 'Cancel', callback: dialog_close },
+                { key: '←', action: 'Step back', callback: dialog_step_back, repeat: true },
+                { key: '→', action: 'Step forward', callback: dialog_step_forward, repeat: true },
+                { key: '↑', action: 'Rewind 1 second', callback: dialog_rewind, repeat: true },
+                { key: '↓', action: 'Fast forward 1 second', callback: dialog_fast_forward, repeat: true },
+                { key: 'Enter', action: 'Take a screenshot', callback: dialog_take_screenshot, repeat: false },
+                { key: 'Escape', action: 'Cancel', callback: dialog_close, repeat: false },
             ];
 
             const tableDiv = document.createElement('div');
@@ -173,9 +173,12 @@ function main(common) {
                 cellKeyButton.style.outline = 'none';
                 cellKeyButton.style.width = '100%';
                 cellKeyButton.value = item.key;
-                cellKeyButton.addEventListener('click', item.callback);
-                cellKeyButton.addEventListener('mousedown', () => { clearInterval(push_interval); push_interval = setInterval(item.callback, 50); });
-                cellKeyButton.addEventListener('mouseup', () => { clearInterval(push_interval); });
+                if (item.repeat) {
+                    cellKeyButton.addEventListener('mousedown', () => { clearInterval(push_interval); push_interval = setInterval(item.callback, 100); });
+                    cellKeyButton.addEventListener('mouseup', () => { clearInterval(push_interval); });
+                } else {
+                    cellKeyButton.addEventListener('mouseup', item.callback);
+                }
                 cellKey.appendChild(cellKeyButton);
 
                 const cellSeparator = document.createElement('div');
