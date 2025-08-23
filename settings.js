@@ -35,16 +35,15 @@ export function createToggle(cell_class, toggle_class, label_class, key, checked
     return div;
 }
 
-export function createKeyInput(input_class, label, default_label, common_value, common) {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'button');
-    input.setAttribute('defaultValue', default_label);
-    input.classList.add(input_class);
+export function createKeyInput(key_class, label, default_label, common_value, common) {
+    const button = document.createElement('button');
+    button.setAttribute('defaultValue', default_label);
+    button.classList.add(key_class);
 
     if (label) {
-        input.value = common_value(label);
+        button.textContent = common_value(label);
     } else {
-        input.value = default_label;
+        button.textContent = default_label;
     }
 
     const dummy = document.createElement('span');
@@ -53,26 +52,28 @@ export function createKeyInput(input_class, label, default_label, common_value, 
     dummy.style.whiteSpace = 'pre';
     document.body.appendChild(dummy);
 
-    input.addEventListener('reset', () => {
-        input.value = default_label;
+    button.addEventListener('reset', () => {
+        button.textContent = default_label;
+        prev_value = default_label;
         adjust_size();
+        button.dispatchEvent(new CustomEvent('change'));
     });
 
     let listening = false;
     let result = false;
-    let prev_value = input.value;
+    let prev_value = button.textContent;
 
-    input.addEventListener('focus', () => {
+    button.addEventListener('focus', () => {
         listening = true;
         result = false;
-        input.value = '';
+        button.textContent = '';
         adjust_size();
     });
 
-    input.addEventListener('blur', () => {
+    button.addEventListener('blur', () => {
         listening = false;
         if (!result) {
-            input.value = prev_value;
+            button.textContent = prev_value;
             adjust_size();
         }
     });
@@ -89,81 +90,81 @@ export function createKeyInput(input_class, label, default_label, common_value, 
 
         if (['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) {
             result = false;
-            input.value = label;
+            button.textContent = label;
             adjust_size();
         } else {
             result = true;
-            input.value = label;
+            button.textContent = label;
             prev_value = label;
             adjust_size();
 
-            input.dispatchEvent(new CustomEvent('change'));
-            input.blur();
+            button.dispatchEvent(new CustomEvent('change'));
+            button.blur();
         }
     }
 
     function adjust_size() {
         const baseFontSize = 14;
         const minFontSize = 5;
-        const input_style = getComputedStyle(input);
+        const input_style = getComputedStyle(button);
         const padding = Number.parseInt(input_style.paddingLeft) + Number.parseInt(input_style.paddingRight);
 
         let fontSize = baseFontSize;
 
-        input.style.fontSize = fontSize + 'px';
+        button.style.fontSize = fontSize + 'px';
         dummy.style.fontSize = fontSize + 'px';
         dummy.style.font = input_style.font;
-        dummy.textContent = input.value || '';
+        dummy.textContent = button.textContent || '';
 
-        while (dummy.offsetWidth > input.clientWidth - padding && fontSize > minFontSize) {
+        while (dummy.offsetWidth > button.clientWidth - padding && fontSize > minFontSize) {
             fontSize -= 0.5;
-            input.style.fontSize = fontSize + 'px';
+            button.style.fontSize = fontSize + 'px';
             dummy.style.fontSize = fontSize + 'px';
         }
 
-        while (dummy.offsetWidth <= input.clientWidth - padding && fontSize < baseFontSize) {
+        while (dummy.offsetWidth <= button.clientWidth - padding && fontSize < baseFontSize) {
             fontSize += 0.5;
-            input.style.fontSize = fontSize + 'px';
+            button.style.fontSize = fontSize + 'px';
             dummy.style.fontSize = fontSize + 'px';
-            if (dummy.offsetWidth > input.clientWidth - padding) {
+            if (dummy.offsetWidth > button.clientWidth - padding) {
                 fontSize -= 0.5;
-                input.style.fontSize = fontSize + 'px';
+                button.style.fontSize = fontSize + 'px';
                 break;
             }
         }
     }
 
-    input.addEventListener('keydown', keychange);
-    input.addEventListener('keyup', keychange);
-    input.addEventListener('adjust', adjust_size);
+    button.addEventListener('keydown', keychange);
+    button.addEventListener('keyup', keychange);
+    button.addEventListener('adjust', adjust_size);
 
-    return input;
+    return button;
 }
 
-export function createClearButton(input, default_label) {
+export function createKeyClearButton(button, default_label) {
     const span = document.createElement('span');
     span.classList.add('filter-clear');
     span.innerHTML = '×';
 
     span.addEventListener('click', () => {
-        input.dispatchEvent(new CustomEvent('reset'));
+        button.dispatchEvent(new CustomEvent('reset'));
 
-        if (input.value === default_label) {
+        if (button.textContent === default_label) {
             span.style.visibility = 'hidden';
         } else {
             span.style.visibility = 'visible';
         }
     });
 
-    input.addEventListener('change', () => {
-        if (input.value === default_label) {
+    button.addEventListener('change', () => {
+        if (button.textContent === default_label) {
             span.style.visibility = 'hidden';
         } else {
             span.style.visibility = 'visible';
         }
     });
 
-    if (input.value === default_label) {
+    if (button.textContent === default_label) {
         span.style.visibility = 'hidden';
     } else {
         span.style.visibility = 'visible';
@@ -174,7 +175,7 @@ export function createClearButton(input, default_label) {
 
 let state = {};
 
-export function registerResetButton(reset_button, progress_div, progress_class, done_class, toggle_class, input_class, progress) {
+export function registerResetButton(reset_button, progress_div, progress_class, done_class, toggle_class, key_class, progress) {
     reset_button.addEventListener('mousedown', () => progress.startProgress(progress_div, progress_class, done_class, state));
     reset_button.addEventListener('touchstart', () => progress.startProgress(progress_div, progress_class, done_class, state));
 
@@ -188,10 +189,10 @@ export function registerResetButton(reset_button, progress_div, progress_class, 
     });
     reset_button.addEventListener('touchcancel', () => progress.endProgress(progress_div, progress_class, done_class, state));
 
-    reset_button.addEventListener('mouseup', () => progress.endProgress(progress_div, progress_class, done_class, state, resetSettings, { toggle_class, input_class }));
+    reset_button.addEventListener('mouseup', () => progress.endProgress(progress_div, progress_class, done_class, state, resetSettings, { toggle_class, key_class }));
     reset_button.addEventListener('touchend', event => {
         event.preventDefault();
-        progress.endProgress(progress_div, progress_class, done_class, state, resetSettings, { toggle_class, input_class });
+        progress.endProgress(progress_div, progress_class, done_class, state, resetSettings, { toggle_class, key_class });
     });
 }
 
@@ -200,9 +201,8 @@ function resetSettings(args) {
         input.checked = input.getAttribute('defaultValue') === 'true';
     }
 
-    for (const input of document.body.querySelectorAll('input.' + args.input_class)) {
-        input.value = input.getAttribute('defaultValue');
-        input.dispatchEvent(new CustomEvent('change'));
+    for (const input of document.body.querySelectorAll('button.' + args.key_class)) {
+        input.dispatchEvent(new CustomEvent('reset'));
     }
 
     chrome.storage.local.clear();

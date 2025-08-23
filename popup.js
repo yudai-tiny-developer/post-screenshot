@@ -13,7 +13,7 @@ function main(common, settings, progress, data) {
     const cell_class = 'cell';
     const toggle_class = 'toggle';
     const label_class = 'switch';
-    const input_class = 'rate';
+    const key_class = 'key';
     const progress_class = 'progress';
     const done_class = 'done';
     const separator_row_class = 'separator-row';
@@ -105,31 +105,31 @@ function main(common, settings, progress, data) {
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, common.label.shortcut));
-        const input = settings.createKeyInput(input_class, data.shortcut, common.default_shortcut, common.value, common);
-        input.addEventListener('change', e => chrome.storage.local.set({ shortcut: e.target.value }));
+        const input = settings.createKeyInput(key_class, data.shortcut, common.default_shortcut, common.value, common);
+        input.addEventListener('change', e => chrome.storage.local.set({ shortcut: e.target.textContent }));
         row.appendChild(input);
-        row.appendChild(settings.createClearButton(input, common.default_shortcut));
+        row.appendChild(settings.createKeyClearButton(input, common.default_shortcut));
         container.appendChild(row);
         input.dispatchEvent(new CustomEvent('adjust'));
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, common.label.shortcut_seek));
-        const input = settings.createKeyInput(input_class, data.shortcut_seek, common.default_shortcut_seek, common.value, common);
-        input.addEventListener('change', e => chrome.storage.local.set({ shortcut_seek: e.target.value }));
+        const input = settings.createKeyInput(key_class, data.shortcut_seek, common.default_shortcut_seek, common.value, common);
+        input.addEventListener('change', e => chrome.storage.local.set({ shortcut_seek: e.target.textContent }));
         row.appendChild(input);
-        row.appendChild(settings.createClearButton(input, common.default_shortcut_seek));
+        row.appendChild(settings.createKeyClearButton(input, common.default_shortcut_seek));
         container.appendChild(row);
         input.dispatchEvent(new CustomEvent('adjust'));
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, common.label.shortcut_recording));
-        const input = settings.createKeyInput(input_class, data.shortcut_recording, common.default_shortcut_recording, common.value, common);
-        input.addEventListener('change', e => chrome.storage.local.set({ shortcut_recording: e.target.value }));
+        const input = settings.createKeyInput(key_class, data.shortcut_recording, common.default_shortcut_recording, common.value, common);
+        input.addEventListener('change', e => chrome.storage.local.set({ shortcut_recording: e.target.textContent }));
         row.appendChild(input);
-        row.appendChild(settings.createClearButton(input, common.default_shortcut_recording));
+        row.appendChild(settings.createKeyClearButton(input, common.default_shortcut_recording));
         container.appendChild(row);
         input.dispatchEvent(new CustomEvent('adjust'));
     }
 
-    settings.registerResetButton(reset_button, progress_div, progress_class, done_class, toggle_class, input_class, progress);
+    settings.registerResetButton(reset_button, progress_div, progress_class, done_class, toggle_class, key_class, progress);
 }

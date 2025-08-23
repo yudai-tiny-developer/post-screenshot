@@ -79,7 +79,7 @@ input.toggle:checked+label.switch:after {
     line-height: 20px;
 }
 
-input.rate {
+button.key {
     margin: 8px;
     padding: 8px;
     width: 140px;
@@ -87,8 +87,16 @@ input.rate {
     text-align: center;
 }
 
-input.rate:focus {
+button.key:focus {
     background-color: coral;
+}
+
+button.key:empty::after {
+    content: '(None)';
+}
+
+button.key:focus:empty::after {
+    content: '';
 }
 
 div#reset_container {
