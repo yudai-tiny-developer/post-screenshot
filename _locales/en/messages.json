@@ -9,7 +9,7 @@
         "message": "Open in a popup window"
     },
     "hashtags": {
-        "message": "Use hashtags in the window title"
+        "message": "Use hashtags"
     },
     "hq": {
         "message": "High-quality screenshot"
@@ -34,6 +34,9 @@
     },
     "shortcut_recording": {
         "message": "Start/Stop recording video (experimental)"
+    },
+    "shortcut_hashtags": {
+        "message": "Select hashtags"
     },
     "appDesc": {
         "message": "Supports posting video screenshots to X"

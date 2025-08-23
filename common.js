@@ -9,6 +9,7 @@ export const storage = [
     'shortcut',
     'shortcut_seek',
     'shortcut_recording',
+    'shortcut_hashtags',
 ];
 
 export const default_post = true;
@@ -21,6 +22,7 @@ export const default_seek = false;
 export const default_shortcut = '';
 export const default_shortcut_seek = '';
 export const default_shortcut_recording = '';
+export const default_shortcut_hashtags = '';
 
 export const label = {
     caption_settings: chrome.i18n.getMessage('caption_settings'),
@@ -35,6 +37,7 @@ export const label = {
     shortcut: chrome.i18n.getMessage('shortcut'),
     shortcut_seek: chrome.i18n.getMessage('shortcut_seek'),
     shortcut_recording: chrome.i18n.getMessage('shortcut_recording'),
+    shortcut_hashtags: chrome.i18n.getMessage('shortcut_hashtags'),
 };
 
 export function value(value, defaultValue) {
