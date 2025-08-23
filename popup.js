@@ -129,6 +129,15 @@ function main(common, settings, progress, data) {
         row.appendChild(settings.createKeyClearButton(input, common.default_shortcut_recording));
         container.appendChild(row);
         input.dispatchEvent(new CustomEvent('adjust'));
+    } {
+        const row = settings.createRow(row_class);
+        row.appendChild(settings.createLabel(cell_class, common.label.shortcut_hashtags));
+        const input = settings.createKeyInput(key_class, data.shortcut_hashtags, common.default_shortcut_hashtags, common.value, common);
+        input.addEventListener('change', e => chrome.storage.local.set({ shortcut_hashtags: e.target.textContent }));
+        row.appendChild(input);
+        row.appendChild(settings.createKeyClearButton(input, common.default_shortcut_hashtags));
+        container.appendChild(row);
+        input.dispatchEvent(new CustomEvent('adjust'));
     }
 
     settings.registerResetButton(reset_button, progress_div, progress_class, done_class, toggle_class, key_class, progress);

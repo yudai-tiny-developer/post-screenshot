@@ -9,7 +9,7 @@
         "message": "ポップアップウインドウでポストする"
     },
     "hashtags": {
-        "message": "ウインドウタイトルのハッシュタグをポストに反映する"
+        "message": "ハッシュタグをポストに反映する"
     },
     "hq": {
         "message": "高画質スクリーンショット"
@@ -34,6 +34,9 @@
     },
     "shortcut_recording": {
         "message": "録画を開始/停止する（試験的機能）"
+    },
+    "shortcut_hashtags": {
+        "message": "使用するハッシュタグを選択する"
     },
     "appDesc": {
         "message": "動画のスクリーンショットをXにポストするのをサポートする拡張機能"

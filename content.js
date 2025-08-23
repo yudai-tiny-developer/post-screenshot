@@ -15,6 +15,7 @@ function main(common) {
             settings_shortcut = common.value(data.shortcut, common.default_shortcut);
             settings_shortcut_seek = common.value(data.shortcut_seek, common.default_shortcut_seek);
             settings_shortcut_recording = common.value(data.shortcut_recording, common.default_shortcut_recording);
+            settings_shortcut_hashtags = common.value(data.shortcut_hashtags, common.default_shortcut_hashtags);
         });
     }
 
@@ -36,7 +37,7 @@ function main(common) {
             const type = 'image/jpeg';
             const base64image = canvas.toDataURL(type, encoderOptions).replace(/^data:[^,]*,/, '');
             const title = `${sanitize(document.title)}_${now()}.jpg`;
-            const hashtags = settings_hashtags ? [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',') : '';
+            const hashtags = settings_hashtags ? selected_hashtags(location.href.split('#')[0]).join(',') : '';
 
             chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image, type, title, hashtags });
         }
@@ -265,7 +266,7 @@ function main(common) {
                         if (settings_post) {
                             const base64image = reader.result.replace(/^data:[^,]*,/, '');
                             const title = `${sanitize(document.title)}_${now()}.mp4`;
-                            const hashtags = settings_hashtags ? [...document.title.matchAll(/[#＃]([\p{L}\p{N}_-]+)/gu)].map(m => m[1]).filter(tag => !/^\p{N}+$/u.test(tag)).join(',') : '';
+                            const hashtags = settings_hashtags ? selected_hashtags(location.href.split('#')[0]).join(',') : '';
 
                             chrome.runtime.sendMessage({ msg: 'ScreenShot', base64image, type, title, hashtags });
                         }
@@ -389,6 +390,204 @@ function main(common) {
         recording = 0;
     }
 
+    function show_hashtags_dialog() {
+        if (!hashtags_dialog) {
+            hashtags_dialog = document.createElement('dialog');
+            hashtags_dialog.id = '_post_screenshot_hashtags_dialog';
+            hashtags_dialog.addEventListener('focusout', (e) => {
+                if (!hashtags_dialog.contains(e.relatedTarget)) {
+                    close_hashtags_dialog();
+                }
+            });
+            hashtags_dialog.style.backgroundColor = 'black';
+            hashtags_dialog.style.color = 'white';
+            hashtags_dialog.style.fontSize = '14px';
+            hashtags_dialog.style.margin = 0;
+            hashtags_dialog.style.outline = 'none';
+            hashtags_dialog.style.height = 'fit-content';
+            hashtags_dialog.addEventListener('keyup', (e) => {
+                if (!hashtags_dialog.contains(e.relatedTarget)) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        close_hashtags_dialog();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        close_hashtags_dialog();
+                    }
+                }
+            });
+
+            document.body.appendChild(hashtags_dialog);
+        }
+
+        showHashtagChecklist(hashtags_dialog);
+
+        hashtags_dialog.style.zIndex = video.style.zIndex + 1;
+
+        const rect = video.getBoundingClientRect();
+        if (document.fullscreenElement) {
+            hashtags_dialog.style.position = 'sticky';
+            hashtags_dialog.style.left = `${rect.left + 4}px`;
+            hashtags_dialog.style.top = `${rect.top + 4}px`;
+        } else {
+            hashtags_dialog.style.position = 'fixed';
+            hashtags_dialog.style.left = `${rect.left + window.scrollX + 4}px`;
+            hashtags_dialog.style.top = `${rect.top + window.scrollY + 4}px`;
+        }
+
+        hashtags_dialog.show();
+    }
+
+    function close_hashtags_dialog() {
+        hashtags_dialog.close();
+    }
+
+    function showHashtagChecklist(container) {
+        container.textContent = '';
+
+        const urlKey = location.href.split('#')[0];
+
+        let selectionData = loadSelection();
+        let selected = new Set(selectionData[urlKey] || []);
+
+        const applyDefaultSelection = () => {
+            selected.clear();
+            selected = defaultSelection();
+            selectionData[urlKey] = [...selected];
+            saveSelection(selectionData);
+        };
+
+        if (!selectionData[urlKey]) applyDefaultSelection();
+
+        const tags = new Set();
+        const walker = document.createTreeWalker(
+            document,
+            NodeFilter.SHOW_TEXT,
+            {
+                acceptNode(n) {
+                    const el = n.parentElement;
+                    if (!el || ['SCRIPT', 'STYLE'].includes(el.nodeName)) return NodeFilter.FILTER_REJECT;
+
+                    if (hasMatchingParent(n, el => ['related'].includes(el.id))) return NodeFilter.FILTER_REJECT;
+
+                    const r = el.getBoundingClientRect();
+                    if (r.width <= 0 || r.height <= 0) return NodeFilter.FILTER_REJECT;
+
+                    return NodeFilter.FILTER_ACCEPT;
+                },
+            }
+        );
+        for (let node; (node = walker.nextNode());) {
+            for (const m of node.nodeValue.matchAll(TAG_RE)) {
+                const tag = `#${m[1]}`;
+                if (/^#\d+$/.test(tag)) continue;
+                tags.add(tag);
+            }
+        }
+
+        const panel = document.createElement('div');
+        panel.tabIndex = 0;
+        panel.style.cssText = [
+            'position:relative',
+            'max-height:60vh',
+            'width:min(320px, 80vw)',
+            'overflow:auto',
+            'outline:none',
+        ].join(';');
+
+        const ctrl_top = document.createElement('div');
+        ctrl_top.style.display = 'flex';
+        const title = document.createElement('div');
+        title.textContent = 'Hashtags';
+        ctrl_top.appendChild(title);
+        const closeBtn = document.createElement('div');
+        closeBtn.textContent = '×';
+        closeBtn.style.cssText = 'font-size:18px;font-weight:bold;cursor:pointer;margin: 0 0 0 auto';
+        closeBtn.addEventListener('click', () => {
+            close_hashtags_dialog();
+        });
+        ctrl_top.appendChild(closeBtn);
+        panel.appendChild(ctrl_top);
+
+        const list = document.createElement('div');
+        [...tags].forEach((tag, i) => {
+            const id = `ht-${i}`;
+            const label = document.createElement('label');
+            label.style.display = 'flex';
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.id = id;
+            cb.value = tag;
+            cb.checked = selected.has(tag);
+            cb.addEventListener('change', () => {
+                if (cb.checked) selected.add(tag);
+                else selected.delete(tag);
+                selectionData[urlKey] = [...selected];
+                saveSelection(selectionData);
+            });
+            const span = document.createElement('span');
+            span.textContent = tag;
+            label.append(cb, span);
+            list.appendChild(label);
+        });
+        panel.appendChild(list);
+
+        const ctrl_bottom = document.createElement('div');
+        ctrl_bottom.style.display = 'flex';
+        const resetBtn = document.createElement('input');
+        resetBtn.setAttribute('type', 'reset');
+        resetBtn.style.cssText = 'margin: 0 0 0 auto';
+        resetBtn.addEventListener('click', () => {
+            selectionData = loadSelection();
+            delete selectionData[urlKey];
+            saveSelection(selectionData);
+            applyDefaultSelection();
+            for (const input of list.querySelectorAll('input')) {
+                input.checked = selected.has(input.value);
+            }
+        });
+        ctrl_bottom.appendChild(resetBtn);
+        panel.appendChild(ctrl_bottom);
+
+        container.appendChild(panel);
+    }
+
+    function hasMatchingParent(el, condition) {
+        let current = el.parentElement;
+        while (current) {
+            if (condition(current)) return true;
+            current = current.parentElement;
+        }
+        return false;
+    }
+
+    function loadSelection() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+        catch { return {}; }
+    }
+
+    function saveSelection(data) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function defaultSelection() {
+        const selected = new Set();
+        for (const m of document.title.matchAll(TAG_RE)) {
+            const t = `#${m[1]}`;
+            if (!/^#\d+$/.test(t)) selected.add(t);
+        }
+        return selected;
+    }
+
+    function selected_hashtags(urlKey) {
+        const selectionData = loadSelection();
+        const selected = new Set(selectionData[urlKey] || defaultSelection());
+
+        return [...selected].map(s => s.replace(/^#/, ''));
+    }
+
     function shortcut_command(e, type) {
         video = document.body.querySelector('video');
         if (video && video.readyState !== 0) {
@@ -402,6 +601,8 @@ function main(common) {
                 show_seek_dialog();
             } else if (type === 3) {
                 record();
+            } else if (type === 4) {
+                show_hashtags_dialog();
             } else {
                 if (settings_seek) {
                     video.pause();
@@ -412,6 +613,9 @@ function main(common) {
             }
         }
     }
+
+    const STORAGE_KEY = 'hashtag-checklist-selection';
+    const TAG_RE = /#([\p{L}\p{N}_\-\u3040-\u30FF\u31F0-\u31FF\u3005\u4E00-\u9FFF]+)/gu;
 
     let settings_post = common.default_post;
     let settings_hashtags = common.default_hashtags;
@@ -434,6 +638,7 @@ function main(common) {
     let dest;
     let recording_dialog;
     let recording_dialog_div;
+    let hashtags_dialog;
 
     chrome.storage.onChanged.addListener(loadSettings);
 
@@ -471,6 +676,8 @@ function main(common) {
                 shortcut_command(e, 2);
             } else if (comboKey === settings_shortcut_recording) {
                 shortcut_command(e, 3);
+            } else if (comboKey === settings_shortcut_hashtags) {
+                shortcut_command(e, 4);
             }
         }
     });
