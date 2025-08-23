@@ -295,10 +295,11 @@ function main(common) {
                     context.drawImage(video, 0, 0, canvas.width, canvas.height);
                     requestAnimationFrame(draw);
                 } else {
-                    recorder.stop();
-
-                    recording_result = true;
+                    if (recording) {
+                        recording_result = true;
+                    }
                     close_recording_dialog();
+                    recorder.stop();
                 }
             }
             draw();
@@ -306,7 +307,7 @@ function main(common) {
     }
 
     function show_recording_dialog() {
-        recording = true;
+        recording = Date.now();
 
         if (!recording_dialog) {
             recording_dialog = document.createElement('dialog');
@@ -331,7 +332,9 @@ function main(common) {
                         e.preventDefault();
                         e.stopPropagation();
 
-                        recording_result = true;
+                        if (recording) {
+                            recording_result = true;
+                        }
                         close_recording_dialog();
                     } else if (e.key === 'Escape') {
                         e.preventDefault();
@@ -345,16 +348,24 @@ function main(common) {
                 }
             });
 
-            const div = document.createElement('div');
-            div.style.textAlign = 'center';
-            div.style.paddingLeft = '4px';
-            div.style.paddingRight = '4px';
-            div.textContent = '●REC';
+            recording_dialog_div = document.createElement('div');
+            recording_dialog_div.style.textAlign = 'center';
+            recording_dialog_div.style.paddingLeft = '4px';
+            recording_dialog_div.style.paddingRight = '4px';
 
-            recording_dialog.appendChild(div);
+            recording_dialog.appendChild(recording_dialog_div);
 
             document.body.appendChild(recording_dialog);
         }
+
+        clearInterval(recording_count_interval);
+        recording_dialog_div.textContent = '●REC (0:00)';
+        recording_count_interval = setInterval(() => {
+            const t = Number.parseInt((Date.now() - recording) / 1000);
+            const mm = String(Number.parseInt(t / 60)).padStart(1, '0');
+            const ss = String(t % 60).padStart(2, '0');
+            recording_dialog_div.textContent = `●REC (${mm}:${ss})`;
+        }, 500);
 
         recording_dialog.style.zIndex = video.style.zIndex + 1;
 
@@ -373,8 +384,9 @@ function main(common) {
     }
 
     function close_recording_dialog() {
-        recording = false;
+        clearInterval(recording_count_interval);
         recording_dialog.close();
+        recording = 0;
     }
 
     function shortcut_command(e, type) {
@@ -416,10 +428,12 @@ function main(common) {
     let push_interval;
     let recording;
     let recording_result;
+    let recording_count_interval;
     let audioCtx;
     let source;
     let dest;
     let recording_dialog;
+    let recording_dialog_div;
 
     chrome.storage.onChanged.addListener(loadSettings);
 
