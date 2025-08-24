@@ -502,7 +502,7 @@ function main(common) {
         for (let node; (node = walker.nextNode());) {
             for (const m of node.nodeValue.matchAll(TAG_RE)) {
                 const tag = `#${m[1]}`;
-                if (/^#\d+$/.test(tag)) continue;
+                if (NUM_RE.test(tag)) continue;
                 tags.add(tag);
             }
         }
@@ -598,7 +598,8 @@ function main(common) {
         const selected = new Set();
         for (const m of document.title.matchAll(TAG_RE)) {
             const t = `#${m[1]}`;
-            if (!/^#\d+$/.test(t)) selected.add(t);
+            if (NUM_RE.test(t)) continue;
+            selected.add(t);
         }
         return selected;
     }
@@ -637,7 +638,8 @@ function main(common) {
     }
 
     const STORAGE_KEY = 'hashtag-checklist-selection';
-    const TAG_RE = /#([\p{L}\p{N}_\-\u3040-\u30FF\u31F0-\u31FF\u3005\u4E00-\u9FFF]+)/gu;
+    const TAG_RE = /[#＃]\s*([\p{L}\p{N}_\-\u3040-\u30FF\u31F0-\u31FF\u3005\u4E00-\u9FFF]+)/gu;
+    const NUM_RE = /^#[0-9０-９]+$/;
 
     let settings_post = common.default_post;
     let settings_hashtags = common.default_hashtags;
