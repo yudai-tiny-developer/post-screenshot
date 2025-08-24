@@ -390,6 +390,16 @@ function main(common) {
         recording = 0;
     }
 
+    function select_hashtags() {
+        if (hashtags_selecting) {
+            hashtags_selecting = false;
+            close_hashtags_dialog();
+        } else {
+            hashtags_selecting = true;
+            show_hashtags_dialog();
+        }
+    }
+
     function show_hashtags_dialog() {
         if (!hashtags_dialog) {
             hashtags_dialog = document.createElement('dialog');
@@ -407,11 +417,7 @@ function main(common) {
             hashtags_dialog.style.height = 'fit-content';
             hashtags_dialog.addEventListener('keyup', (e) => {
                 if (!hashtags_dialog.contains(e.relatedTarget)) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        close_hashtags_dialog();
-                    } else if (e.key === 'Escape') {
+                    if (e.key === 'Escape') {
                         e.preventDefault();
                         e.stopPropagation();
                         close_hashtags_dialog();
@@ -441,6 +447,7 @@ function main(common) {
     }
 
     function close_hashtags_dialog() {
+        hashtags_selecting = false;
         hashtags_dialog.close();
     }
 
@@ -603,7 +610,7 @@ function main(common) {
             } else if (type === 3) {
                 record();
             } else if (type === 4) {
-                show_hashtags_dialog();
+                select_hashtags();
             } else {
                 if (settings_seek) {
                     video.pause();
@@ -627,19 +634,23 @@ function main(common) {
     let settings_shortcut = common.default_shortcut;
     let settings_shortcut_seek = common.default_shortcut_seek;
     let settings_shortcut_recording = common.default_shortcut_recording;
+
     let video;
     let canvas;
     let dialog;
     let push_interval;
+
+    let recording_dialog;
+    let recording_dialog_div;
     let recording;
     let recording_result;
     let recording_count_interval;
     let audioCtx;
     let source;
     let dest;
-    let recording_dialog;
-    let recording_dialog_div;
+
     let hashtags_dialog;
+    let hashtags_selecting;
 
     chrome.storage.onChanged.addListener(loadSettings);
 
