@@ -111,24 +111,24 @@ export function createKeyInput(key_class, label, default_label, common_value, co
 
         let fontSize = baseFontSize;
 
-        button.style.fontSize = fontSize + 'px';
-        dummy.style.fontSize = fontSize + 'px';
+        button.style.fontSize = `${fontSize}px`;
+        dummy.style.fontSize = `${fontSize}px`;
         dummy.style.font = input_style.font;
         dummy.textContent = button.textContent || '';
 
         while (dummy.offsetWidth > button.clientWidth - padding && fontSize > minFontSize) {
             fontSize -= 0.5;
-            button.style.fontSize = fontSize + 'px';
-            dummy.style.fontSize = fontSize + 'px';
+            button.style.fontSize = `${fontSize}px`;
+            dummy.style.fontSize = `${fontSize}px`;
         }
 
         while (dummy.offsetWidth <= button.clientWidth - padding && fontSize < baseFontSize) {
             fontSize += 0.5;
-            button.style.fontSize = fontSize + 'px';
-            dummy.style.fontSize = fontSize + 'px';
+            button.style.fontSize = `${fontSize}px`;
+            dummy.style.fontSize = `${fontSize}px`;
             if (dummy.offsetWidth > button.clientWidth - padding) {
                 fontSize -= 0.5;
-                button.style.fontSize = fontSize + 'px';
+                button.style.fontSize = `${fontSize}px`;
                 break;
             }
         }
@@ -144,7 +144,7 @@ export function createKeyInput(key_class, label, default_label, common_value, co
 export function createKeyClearButton(button, default_label) {
     const span = document.createElement('span');
     span.classList.add('filter-clear');
-    span.innerHTML = '×';
+    span.innerHTML = '✕';
 
     span.addEventListener('click', () => {
         button.dispatchEvent(new CustomEvent('reset'));
@@ -197,11 +197,11 @@ export function registerResetButton(reset_button, progress_div, progress_class, 
 }
 
 function resetSettings(args) {
-    for (const input of document.body.querySelectorAll('input.' + args.toggle_class)) {
+    for (const input of document.body.querySelectorAll(`input.${args.toggle_class}`)) {
         input.checked = input.getAttribute('defaultValue') === 'true';
     }
 
-    for (const input of document.body.querySelectorAll('button.' + args.key_class)) {
+    for (const input of document.body.querySelectorAll(`button.${args.key_class}`)) {
         input.dispatchEvent(new CustomEvent('reset'));
     }
 
