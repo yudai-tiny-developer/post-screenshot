@@ -137,18 +137,22 @@ function main(common) {
         if (!dialog) {
             dialog = document.createElement('dialog');
             dialog.id = '_post_screenshot_dialog';
-            dialog.addEventListener('focusout', (e) => {
+            dialog.addEventListener('focusout', e => {
                 if (!dialog.contains(e.relatedTarget)) {
                     dialog_close();
                 }
             });
             dialog.addEventListener('keydown', dialog_seek);
             dialog.addEventListener('keyup', dialog_seek_close);
-            dialog.style.backgroundColor = 'black';
-            dialog.style.color = 'white';
+            dialog.style.backgroundColor = '#101010';
+            dialog.style.color = '#F0F0F0';
             dialog.style.fontSize = '14px';
-            dialog.style.margin = 0;
+            dialog.style.margin = '0';
             dialog.style.outline = 'none';
+            dialog.style.height = 'fit-content';
+            dialog.style.borderRadius = '24px';
+            dialog.style.borderColor = '#494949';
+            dialog.style.padding = '12px';
 
             const keyActions = [
                 { key: '←', action: 'Step back', callback: dialog_step_back, repeat: true },
@@ -169,10 +173,12 @@ function main(common) {
                 const cellKey = document.createElement('div');
                 cellKey.style.display = 'table-cell';
                 cellKey.style.textAlign = 'center';
+
                 const cellKeyButton = document.createElement('input');
                 cellKeyButton.type = 'button';
                 cellKeyButton.style.outline = 'none';
                 cellKeyButton.style.width = '100%';
+
                 cellKeyButton.value = item.key;
                 if (item.repeat) {
                     cellKeyButton.addEventListener('mousedown', () => { clearInterval(push_interval); push_interval = setInterval(item.callback, 100); item.callback(); });
@@ -256,7 +262,7 @@ function main(common) {
             });
             const chunks = [];
 
-            recorder.ondataavailable = (e) => chunks.push(e.data);
+            recorder.ondataavailable = e => chunks.push(e.data);
 
             recorder.onstop = async () => {
                 if (recording_result) {
@@ -313,7 +319,7 @@ function main(common) {
         if (!recording_dialog) {
             recording_dialog = document.createElement('dialog');
             recording_dialog.id = '_post_screenshot_recording_dialog';
-            recording_dialog.addEventListener('focusout', (e) => {
+            recording_dialog.addEventListener('focusout', e => {
                 if (!recording_dialog.contains(e.relatedTarget)) {
                     if (recording) {
                         recording_result = false;
@@ -321,13 +327,17 @@ function main(common) {
                     close_recording_dialog();
                 }
             });
-            recording_dialog.style.backgroundColor = 'black';
-            recording_dialog.style.color = 'red';
+            recording_dialog.style.backgroundColor = '#101010';
+            recording_dialog.style.color = '#F01010';
             recording_dialog.style.fontSize = '14px';
-            recording_dialog.style.margin = 0;
+            recording_dialog.style.margin = '0';
             recording_dialog.style.outline = 'none';
+            recording_dialog.style.height = 'fit-content';
+            recording_dialog.style.borderRadius = '24px';
+            recording_dialog.style.borderColor = '#F01010';
+            recording_dialog.style.padding = '12px';
             recording_dialog.title = 'Press Enter or the shortcut key again: Stop recording\nPress Escape or lose focus: Cancel recording';
-            recording_dialog.addEventListener('keyup', (e) => {
+            recording_dialog.addEventListener('keyup', e => {
                 if (!recording_dialog.contains(e.relatedTarget)) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
@@ -360,12 +370,12 @@ function main(common) {
         }
 
         clearInterval(recording_count_interval);
-        recording_dialog_div.textContent = '●REC (0:00)';
+        recording_dialog_div.textContent = '◉REC (0:00)';
         recording_count_interval = setInterval(() => {
             const t = Number.parseInt((Date.now() - recording) / 1000);
             const mm = String(Number.parseInt(t / 60)).padStart(1, '0');
             const ss = String(t % 60).padStart(2, '0');
-            recording_dialog_div.textContent = `●REC (${mm}:${ss})`;
+            recording_dialog_div.textContent = `◉REC (${mm}:${ss})`;
         }, 500);
 
         recording_dialog.style.zIndex = video.style.zIndex + 1;
@@ -404,18 +414,21 @@ function main(common) {
         if (!hashtags_dialog) {
             hashtags_dialog = document.createElement('dialog');
             hashtags_dialog.id = '_post_screenshot_hashtags_dialog';
-            hashtags_dialog.addEventListener('focusout', (e) => {
+            hashtags_dialog.addEventListener('focusout', e => {
                 if (!hashtags_dialog.contains(e.relatedTarget)) {
                     close_hashtags_dialog();
                 }
             });
-            hashtags_dialog.style.backgroundColor = 'black';
-            hashtags_dialog.style.color = 'white';
+            hashtags_dialog.style.backgroundColor = '#101010';
+            hashtags_dialog.style.color = '#F0F0F0';
             hashtags_dialog.style.fontSize = '14px';
-            hashtags_dialog.style.margin = 0;
+            hashtags_dialog.style.margin = '0';
             hashtags_dialog.style.outline = 'none';
             hashtags_dialog.style.height = 'fit-content';
-            hashtags_dialog.addEventListener('keyup', (e) => {
+            hashtags_dialog.style.borderRadius = '24px';
+            hashtags_dialog.style.borderColor = '#494949';
+            hashtags_dialog.style.padding = '12px';
+            hashtags_dialog.addEventListener('keyup', e => {
                 if (!hashtags_dialog.contains(e.relatedTarget)) {
                     if (e.key === 'Escape') {
                         e.preventDefault();
@@ -497,13 +510,11 @@ function main(common) {
 
         const panel = document.createElement('div');
         panel.tabIndex = 0;
-        panel.style.cssText = [
-            'position:relative',
-            'max-height:60vh',
-            'width:min(320px, 80vw)',
-            'overflow:auto',
-            'outline:none',
-        ].join(';');
+        panel.style.position = 'relative';
+        panel.style.maxHeight = '60vh';
+        panel.style.width = 'min(320px, 80vw)';
+        panel.style.overflow = 'auto';
+        panel.style.outline = 'none';
 
         const ctrl_top = document.createElement('div');
         ctrl_top.style.display = 'flex';
@@ -511,8 +522,11 @@ function main(common) {
         title.textContent = 'Hashtags';
         ctrl_top.appendChild(title);
         const closeBtn = document.createElement('div');
-        closeBtn.textContent = '×';
-        closeBtn.style.cssText = 'font-size:18px;font-weight:bold;cursor:pointer;margin: 0 0 0 auto';
+        closeBtn.textContent = '✕';
+        closeBtn.style.fontSize = '18px';
+        closeBtn.style.fontWeight = 'bold';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.style.margin = '0 0 0 auto';
         closeBtn.addEventListener('click', () => {
             close_hashtags_dialog();
         });
@@ -546,7 +560,7 @@ function main(common) {
         ctrl_bottom.style.display = 'flex';
         const resetBtn = document.createElement('input');
         resetBtn.setAttribute('type', 'reset');
-        resetBtn.style.cssText = 'margin: 0 0 0 auto';
+        resetBtn.style.margin = '0 0 0 auto';
         resetBtn.addEventListener('click', () => {
             selectionData = loadSelection();
             delete selectionData[urlKey];

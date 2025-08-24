@@ -88,7 +88,7 @@ button.key {
 }
 
 button.key:focus {
-    background-color: coral;
+    background-color: rgb(249, 161, 151);
 }
 
 button.key:empty::after {
@@ -96,7 +96,7 @@ button.key:empty::after {
 }
 
 button.key:focus:empty::after {
-    content: '';
+    content: '...';
 }
 
 div#reset_container {
@@ -120,8 +120,7 @@ div#reset_progress.done {
 }
 
 span.filter-clear {
-    margin-right: 8px;
-    font-size: 22px;
+    font-size: 20px;
     cursor: pointer;
 }
 
