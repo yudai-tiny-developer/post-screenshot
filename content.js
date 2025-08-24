@@ -486,6 +486,7 @@ function main(common) {
                 tags.add(tag);
             }
         }
+        selected.forEach(tags.add, tags);
 
         const panel = document.createElement('div');
         panel.tabIndex = 0;
