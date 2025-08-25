@@ -15,14 +15,14 @@ export const storage = [
 export const default_post = true;
 export const default_popup = false;
 export const default_hashtags = true;
-export const default_hq = false;
+export const default_hq = true;
 export const default_hq_recording = false;
 export const default_download = false;
 export const default_seek = false;
-export const default_shortcut = '';
-export const default_shortcut_seek = '';
-export const default_shortcut_recording = '';
-export const default_shortcut_hashtags = '';
+export const default_shortcut = 'Q';
+export const default_shortcut_seek = 'Ctrl + Q';
+export const default_shortcut_recording = 'Ctrl + Shift + Q';
+export const default_shortcut_hashtags = 'H';
 
 export const label = {
     caption_settings: chrome.i18n.getMessage('caption_settings'),
