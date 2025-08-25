@@ -59,6 +59,13 @@ export function createKeyInput(key_class, label, default_label, common_value, co
         button.dispatchEvent(new CustomEvent('change'));
     });
 
+    button.addEventListener('clear', () => {
+        button.textContent = '';
+        prev_value = '';
+        adjust_size();
+        button.dispatchEvent(new CustomEvent('change'));
+    });
+
     let listening = false;
     let result = false;
     let prev_value = button.textContent;
@@ -141,15 +148,15 @@ export function createKeyInput(key_class, label, default_label, common_value, co
     return button;
 }
 
-export function createKeyClearButton(button, default_label) {
+export function createKeyClearButton(button) {
     const span = document.createElement('span');
     span.classList.add('filter-clear');
     span.innerHTML = '✕';
 
     span.addEventListener('click', () => {
-        button.dispatchEvent(new CustomEvent('reset'));
+        button.dispatchEvent(new CustomEvent('clear'));
 
-        if (button.textContent === default_label) {
+        if (button.textContent === '') {
             span.style.visibility = 'hidden';
         } else {
             span.style.visibility = 'visible';
@@ -157,14 +164,14 @@ export function createKeyClearButton(button, default_label) {
     });
 
     button.addEventListener('change', () => {
-        if (button.textContent === default_label) {
+        if (button.textContent === '') {
             span.style.visibility = 'hidden';
         } else {
             span.style.visibility = 'visible';
         }
     });
 
-    if (button.textContent === default_label) {
+    if (button.textContent === '') {
         span.style.visibility = 'hidden';
     } else {
         span.style.visibility = 'visible';
