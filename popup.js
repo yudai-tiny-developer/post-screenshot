@@ -108,7 +108,7 @@ function main(common, settings, progress, data) {
         const input = settings.createKeyInput(key_class, data.shortcut, common.default_shortcut, common.value, common);
         input.addEventListener('change', e => chrome.storage.local.set({ shortcut: e.target.textContent }));
         row.appendChild(input);
-        row.appendChild(settings.createKeyClearButton(input, common.default_shortcut));
+        row.appendChild(settings.createKeyClearButton(input));
         container.appendChild(row);
         input.dispatchEvent(new CustomEvent('adjust'));
     } {
@@ -117,7 +117,7 @@ function main(common, settings, progress, data) {
         const input = settings.createKeyInput(key_class, data.shortcut_seek, common.default_shortcut_seek, common.value, common);
         input.addEventListener('change', e => chrome.storage.local.set({ shortcut_seek: e.target.textContent }));
         row.appendChild(input);
-        row.appendChild(settings.createKeyClearButton(input, common.default_shortcut_seek));
+        row.appendChild(settings.createKeyClearButton(input));
         container.appendChild(row);
         input.dispatchEvent(new CustomEvent('adjust'));
     } {
@@ -126,7 +126,7 @@ function main(common, settings, progress, data) {
         const input = settings.createKeyInput(key_class, data.shortcut_recording, common.default_shortcut_recording, common.value, common);
         input.addEventListener('change', e => chrome.storage.local.set({ shortcut_recording: e.target.textContent }));
         row.appendChild(input);
-        row.appendChild(settings.createKeyClearButton(input, common.default_shortcut_recording));
+        row.appendChild(settings.createKeyClearButton(input));
         container.appendChild(row);
         input.dispatchEvent(new CustomEvent('adjust'));
     } {
@@ -135,7 +135,7 @@ function main(common, settings, progress, data) {
         const input = settings.createKeyInput(key_class, data.shortcut_hashtags, common.default_shortcut_hashtags, common.value, common);
         input.addEventListener('change', e => chrome.storage.local.set({ shortcut_hashtags: e.target.textContent }));
         row.appendChild(input);
-        row.appendChild(settings.createKeyClearButton(input, common.default_shortcut_hashtags));
+        row.appendChild(settings.createKeyClearButton(input));
         container.appendChild(row);
         input.dispatchEvent(new CustomEvent('adjust'));
     }
