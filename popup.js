@@ -26,6 +26,8 @@ function main(common, settings, progress, data) {
     const reset_button = document.body.querySelector('input#reset');
     const progress_div = document.body.querySelector('div#reset_progress');
 
+    const key_inputs = [];
+
     {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(caption_cell_class, common.label.caption_settings));
@@ -111,6 +113,7 @@ function main(common, settings, progress, data) {
         row.appendChild(settings.createKeyClearButton(input));
         container.appendChild(row);
         input.dispatchEvent(new CustomEvent('adjust'));
+        key_inputs.push(input);
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, common.label.shortcut_seek));
@@ -120,6 +123,7 @@ function main(common, settings, progress, data) {
         row.appendChild(settings.createKeyClearButton(input));
         container.appendChild(row);
         input.dispatchEvent(new CustomEvent('adjust'));
+        key_inputs.push(input);
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, common.label.shortcut_recording));
@@ -129,6 +133,7 @@ function main(common, settings, progress, data) {
         row.appendChild(settings.createKeyClearButton(input));
         container.appendChild(row);
         input.dispatchEvent(new CustomEvent('adjust'));
+        key_inputs.push(input);
     } {
         const row = settings.createRow(row_class);
         row.appendChild(settings.createLabel(cell_class, common.label.shortcut_hashtags));
@@ -138,7 +143,9 @@ function main(common, settings, progress, data) {
         row.appendChild(settings.createKeyClearButton(input));
         container.appendChild(row);
         input.dispatchEvent(new CustomEvent('adjust'));
+        key_inputs.push(input);
     }
+    settings.groupKeyInput(key_inputs);
 
     settings.registerResetButton(reset_button, progress_div, progress_class, done_class, toggle_class, key_class, progress);
 }

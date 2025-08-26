@@ -180,6 +180,21 @@ export function createKeyClearButton(button) {
     return span;
 }
 
+export function groupKeyInput(inputs) {
+    for (const input of inputs) {
+        input.addEventListener('change', () => {
+            if (input.textContent !== '') {
+                for (const input2 of inputs) {
+                    if (input !== input2 && input.textContent === input2.textContent) {
+                        input2.dispatchEvent(new CustomEvent('clear'));
+                    }
+                }
+            }
+        });
+    }
+}
+
+
 let state = {};
 
 export function registerResetButton(reset_button, progress_div, progress_class, done_class, toggle_class, key_class, progress) {
