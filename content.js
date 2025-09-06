@@ -586,12 +586,12 @@ function main(common) {
     }
 
     function loadSelection() {
-        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+        try { return JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '{}'); }
         catch { return {}; }
     }
 
     function saveSelection(data) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
     function defaultSelection() {
